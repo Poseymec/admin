@@ -309,6 +309,9 @@ const menuGroups = [
         subItems: [
           { name: "Signin", path: "/signin", pro: false },
           { name: "Signup", path: "/signup", pro: false },
+          { name: "ForgotPassword", path: "/forgot-password", pro: false },
+          { name: "ResetPassword", path: "/reset-password", pro: false },
+          { name: "VerifyEmail", path: "/verify-email", pro: false}
         ],
       },
       // ... Add other menu items here

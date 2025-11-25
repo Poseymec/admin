@@ -139,7 +139,29 @@ const router = createRouter({
       meta: {
         title: 'Signup',
       },
+    }, {
+      path: '/forgot-password',
+      name: 'ForgotPassword',
+      component: () => import('../views/Auth/ForgotPassword.vue'),
+      meta: {
+        title: 'ForgotPassword',
+      },
+    }, {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: () => import('../views/Auth/ResetPassword.vue'),
+      meta: {
+        title: 'ResetPassword',
+      },
     },
+     {
+       path: '/verifyemail/:uid/:hash',
+        name: 'ResetPassword',
+      component: () => import('../views/Auth/ResetPassword.vue'),
+      meta: {
+        title: 'ResetPassword',
+      },
+}
   ],
 })
 
