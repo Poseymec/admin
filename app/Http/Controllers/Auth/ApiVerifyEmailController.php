@@ -10,7 +10,7 @@ class ApiVerifyEmailController extends Controller
 {
     public function verify(Request $request)
     {
-        $user = \App\Models\User::findOrFail($request->user_id);
+        $user = \App\Models\User::findOrFail($request->uid);
 
         if (! hash_equals((string) $request->hash, sha1($user->getEmailForVerification()))) {
             return response()->json(['message' => 'Invalid verification link.'], 400);

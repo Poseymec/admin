@@ -103,8 +103,8 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 onMounted(async () => {
-  const uid = route.params.id as string
-  const hash = route.query.hash as string
+  const uid = route.params.uid as string
+  const hash = route.params.hash as string
 
   if (!uid || !hash) {
     status.value = 'error'

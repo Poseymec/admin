@@ -156,10 +156,10 @@ const router = createRouter({
     },
      {
        path: '/verifyemail/:uid/:hash',
-        name: 'ResetPassword',
-      component: () => import('../views/Auth/ResetPassword.vue'),
+        name: 'VerifyEmail',
+      component: () => import('../views/Auth/VerifyEmail.vue'),
       meta: {
-        title: 'ResetPassword',
+        title: 'VerifyEmail',
       },
 }
   ],
