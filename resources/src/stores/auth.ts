@@ -55,44 +55,50 @@ export const useAuthStore = defineStore('auth', {
     /**
      * S'inscrire
      */
-    async register( { name, email, password }: { name: string; email: string; password: string }) {
-      this.isLoading = true
-      try {
-        await axios.post('/api/auth/register', {
-          name,
-          email,
-          password,
-          password_confirmation: password,
-        })
-        // ✅ Pas d'authentification après inscription
-        // L'utilisateur doit vérifier son email d'abord
-        this.user = null
-        this.isAuthenticated = false
-      } catch (err) {
-        const error = err as AxiosError<ApiErrorResponse>
-        let message = 'Une erreur est survenue lors de l’inscription.'
+  async register({ name, email, password }: { name: string; email: string; password: string }) {
+  this.isLoading = true
+  try {
+    const response = await axios.post('/api/auth/register', {
+      name,
+      email,
+      password,
+      password_confirmation: password,
+    })
 
-        if (!error.response) {
-          message = 'Impossible de contacter le serveur. Vérifiez votre connexion.'
-        } else if (error.response.status === 422) {
-          const errors = error.response.data.errors
-          if (errors) {
-            message = Object.values(errors)[0][0]
-          } else {
-            message = error.response.data.message || 'Données invalides.'
-          }
-        } else if (error.response.status === 409) {
-          message = 'Cet email est déjà utilisé.'
-        } else {
-          message = error.response.data.message || 'Erreur inconnue. Veuillez réessayer.'
-        }
+    // Sauvegarde l'email pour la page de vérification
+    localStorage.setItem('lastRegisteredEmail', email)
 
-        throw new Error(message)
-      } finally {
-        this.isLoading = false
+    // Pas de connexion automatique → utilisateur non authentifié
+    this.user = null
+    this.isAuthenticated = false
+
+    return response.data
+  } catch (err) {
+    const error = err as AxiosError<ApiErrorResponse>
+    let message = 'Une erreur est survenue lors de l’inscription.'
+
+    if (!error.response) {
+      message = 'Impossible de contacter le serveur. Vérifiez votre connexion.'
+    } else if (error.response.status === 422) {
+      const errors = error.response.data.errors
+      if (errors) {
+        message = Object.values(errors)[0][0]
+      } else {
+        message = error.response.data.message || 'Données invalides.'
       }
-    },
+    } else if (error.response.status === 409) {
+      message = 'Cet email est déjà utilisé.'
+    } else {
+      message = error.response.data.message || 'Erreur inconnue. Veuillez réessayer.'
+    }
 
+    throw new Error(message)
+  } finally {
+    this.isLoading = false
+  }
+ 
+  },
+  
     /**
      * Déconnexion
      */
@@ -137,11 +143,12 @@ export const useAuthStore = defineStore('auth', {
     /**
      * Réinitialiser le mot de passe
      */
-    async resetPassword(token: string, password: string) {
+    async resetPassword(  token: string,email:string, password: string) {
       this.isLoading = true
       try {
         await axios.post('/api/auth/reset-password', {
           token,
+          email, 
           password,
           password_confirmation: password,
         })
@@ -162,6 +169,33 @@ export const useAuthStore = defineStore('auth', {
           message = 'Le lien de réinitialisation est invalide ou a expiré.'
         } else {
           message = error.response.data.message || 'Erreur inconnue.'
+        }
+
+        throw new Error(message)
+      } finally {
+        this.isLoading = false
+      }
+    },
+      async changePassword(payload: {
+      current_password: string
+      password: string
+      password_confirmation: string
+    }) {
+      this.isLoading = true
+      try {
+        await axios.put('/api/auth/password', payload)
+        // Optionnel : déconnecte ou notifie l'utilisateur
+        alert('Mot de passe mis à jour avec succès.')
+      } catch (err: any) {
+        let message = 'Impossible de changer le mot de passe.'
+
+        if (err.response?.status === 422) {
+          const errors = err.response.data.errors
+          message = errors?.current_password?.[0] || errors?.password?.[0] || 'Données invalides.'
+        } else if (err.response?.status === 401) {
+          message = 'Session expirée. Veuillez vous reconnecter.'
+        } else {
+          message = err.response?.data?.message || 'Erreur inconnue.'
         }
 
         throw new Error(message)
@@ -196,6 +230,17 @@ export const useAuthStore = defineStore('auth', {
         this.isLoading = false
       }
     },
+    /**
+     * Renvoyer l'email de vérification
+     */
+   async resendVerificationEmail(email: string) {
+  this.isLoading = true
+  try {
+    await axios.post('/api/auth/email/verification-notification', { email })
+  } finally {
+    this.isLoading = false
+  }
+},
 
     /**
      * Récupérer l'utilisateur connecté

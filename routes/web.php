@@ -1,17 +1,24 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes (SPA Fallback)
+|--------------------------------------------------------------------------
+|
+| This file is for serving your Vue.js SPA.
+| All frontend routes are handled by Vue Router.
+| Laravel only serves the main entry view (`app.blade.php`).
+|
+*/
+
+// Route principale
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
-})->name('home');
+    return view('app');
+});
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-require __DIR__.'/settings.php';
+// Route catch-all pour le SPA (doit être la dernière)
+Route::get('/{any}', function () {
+    return view('app');
+})->where('any', '.*');

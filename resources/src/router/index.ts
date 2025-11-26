@@ -155,6 +155,22 @@ const router = createRouter({
       },
     },
      {
+      path: '/change-password',
+      name: 'ChangePassword',
+      component: () => import('../views/Auth/ChangePassword.vue'),
+      meta: {
+        title: 'ChangePassword',
+      },
+    },
+    {
+      path: '/verify-email',
+      name: 'VerifyEmailNotice',
+      component: () => import('../views/Auth/VerifyEmailNotice.vue'),
+        meta: {
+        title: 'VerifyEmailNotice',
+      },
+    },
+     {
        path: '/verifyemail/:uid/:hash',
         name: 'VerifyEmail',
       component: () => import('../views/Auth/VerifyEmail.vue'),

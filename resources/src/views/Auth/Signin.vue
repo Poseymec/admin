@@ -180,7 +180,7 @@ const togglePasswordVisibility = () => {
 const handleSubmit = async () => {
   try {
     await authStore.login(email.value, password.value)
-    router.push({ name: 'dashboard' })
+    router.push({ name: 'Ecommerce' })
   } catch (err: any) {
     alert(err.message)
   }

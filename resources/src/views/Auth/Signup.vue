@@ -368,7 +368,7 @@ const handleSubmit = async () => {
       email: email.value,
       password: password.value,
     })
-    router.push({ name: 'VerifyEmail' })
+    router.push({ name:'VerifyEmailNotice' })
   } catch (err: any) {
     alert(err.message)
   }
