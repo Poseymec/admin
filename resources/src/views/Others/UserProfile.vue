@@ -7,8 +7,6 @@
     >
       <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">Profile</h3>
       <profile-card />
-      <personal-info-card />
-      <address-card />
     </div>
   </admin-layout>
 </template>
@@ -18,7 +16,7 @@ import AdminLayout from '../../components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import { ref } from 'vue'
 import ProfileCard from '../../components/profile/ProfileCard.vue'
-import PersonalInfoCard from '../../components/profile/PersonalInfoCard.vue'
-import AddressCard from '../../components/profile/AddressCard.vue'
+//import PersonalInfoCard from '../../components/profile/PersonalInfoCard.vue'
+//import AddressCard from '../../components/profile/AddressCard.vue'
 const currentPageTitle = ref('User Profile')
 </script>

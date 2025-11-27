@@ -102,15 +102,17 @@ export const useAuthStore = defineStore('auth', {
     /**
      * Déconnexion
      */
-    async logout() {
+     async logout() {
       try {
         await axios.post('/api/auth/logout')
       } catch (err) {
-        console.warn('Logout warning:', err)
-        // On se déconnecte quand même côté client
+        console.warn('Logout API error (optional)', err)
+        // Peu importe l'erreur : on déconnecte localement
       } finally {
         this.user = null
         this.isAuthenticated = false
+        // Optionnel : supprime les données sensibles du localStorage
+        // localStorage.removeItem('...') // si tu en stockes
       }
     },
 

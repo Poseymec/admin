@@ -1,5 +1,5 @@
+<!-- src/App.vue -->
 <template>
-
   <ThemeProvider>
     <SidebarProvider>
       <RouterView />
