@@ -108,6 +108,14 @@
             />
           </div>
 
+          <!-- Messages de feedback -->
+          <div v-if="successMessage" class="text-sm text-green-600 dark:text-green-400">
+            {{ successMessage }}
+          </div>
+          <div v-if="errorMessage" class="text-sm text-red-600 dark:text-red-400">
+            {{ errorMessage }}
+          </div>
+
           <button
             type="submit"
             :disabled="authStore.isLoading"
@@ -161,18 +169,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import Modal from '@/components/profile/Modal.vue' // ✅ Assure-toi que le chemin est bon
-import axios from 'axios'
+import Modal from '@/components/profile/Modal.vue'
 
 const authStore = useAuthStore()
 const activeTab = ref('info')
 const showLogoutModal = ref(false)
+
 const form = reactive({
   current_password: '',
   password: '',
   password_confirmation: '',
+})
+
+const errorMessage = ref('')
+const successMessage = ref('')
+
+// Réinitialise les messages quand l'onglet change ou après succès
+watch(activeTab, () => {
+  errorMessage.value = ''
+  successMessage.value = ''
 })
 
 const user = computed(() => authStore.user || {
@@ -184,14 +201,26 @@ const user = computed(() => authStore.user || {
 const userInitial = computed(() => user.value.name.charAt(0).toUpperCase())
 
 const handleChangePassword = async () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+
   try {
     await authStore.changePassword(form)
-    // Réinitialise le formulaire
+
+    // Succès
+    successMessage.value = 'Mot de passe mis à jour avec succès.'
+
+    // Réinitialiser le formulaire
     form.current_password = ''
     form.password = ''
     form.password_confirmation = ''
+
+    // Optionnel : masquer le message après 3s
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
   } catch (err: any) {
-    alert(err.message)
+    errorMessage.value = err.message || 'Une erreur est survenue.'
   }
 }
 
@@ -199,9 +228,7 @@ const confirmLogout = async () => {
   authStore.user = null
   authStore.isAuthenticated = false
   try {
-    await axios.post('/api/auth/logout')
-  } catch (err) {
-    console.warn('Logout API error (ignored)')
+    await authStore.logout() // Utilisez la méthode du store
   } finally {
     window.location.href = '/signin'
   }

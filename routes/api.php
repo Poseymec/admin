@@ -11,7 +11,7 @@ use App\Http\Controllers\Auth\ApiEmailVerificationNotificationController;
 use App\Http\Controllers\Auth\ApiVerifyEmailController;
 use App\Http\Controllers\Auth\ApiChangePasswordController;
 
-// Routes publiques (pas besoin d'authentification)
+// Routes publiques
 Route::prefix('auth')->group(function () {
     Route::post('/login', [ApiLoginController::class, 'login']);
     Route::post('/register', [ApiRegisterController::class, 'register']);
@@ -21,10 +21,9 @@ Route::prefix('auth')->group(function () {
     Route::post('/email/verify', [ApiVerifyEmailController::class, 'verify']);
 });
 
-// Routes protégées (nécessitent une authentification Sanctum)
+// Routes protégées (authentification par session/cookie)
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::post('/logout', [ApiLogoutController::class, 'logout']);
     Route::get('/user', [ApiUserController::class, 'user']);
-   
     Route::put('/password', [ApiChangePasswordController::class, '__invoke']);
 });

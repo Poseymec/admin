@@ -1,4 +1,3 @@
-// main.ts
 import './assets/main.css'
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -13,19 +12,23 @@ import router from './router'
 import VueApexCharts from 'vue3-apexcharts'
 import axios from 'axios'
 
+// ✅ Configuration Axios
+axios.defaults.baseURL = 'http://localhost:8000'
 axios.defaults.withCredentials = true
+axios.defaults.withXSRFToken = true
+axios.defaults.headers.common['Accept'] = 'application/json'
+axios.defaults.headers.common['Content-Type'] = 'application/json'
 
-const pinia = createPinia()
-const app = createApp(App)
+// ✅ Initialise le cookie CSRF au démarrage de l'app
+axios.get('/sanctum/csrf-cookie').then(() => {
+  const app = createApp(App)
+  const pinia = createPinia()
 
+  app.use(pinia)
+  app.use(router)
+  app.use(VueApexCharts)
 
-app.use(pinia)
-app.use(router)
-app.use(VueApexCharts)
-
-// ✅ Vérifie l'authentification APRÈS installation de Pinia
-const { useAuthStore } = await import('@/stores/auth') // Chargement dynamique pour éviter les cycles
-const authStore = useAuthStore()
-await authStore.fetchUser()
-
-app.mount('#app')
+  app.mount('#app')
+}).catch(error => {
+  console.error('Failed to initialize CSRF cookie:', error)
+})

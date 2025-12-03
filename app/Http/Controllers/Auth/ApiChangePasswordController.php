@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -26,6 +27,7 @@ class ApiChangePasswordController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // ✅ La session reste active - pas besoin de réauthentifier
         return response()->json(['message' => 'Mot de passe mis à jour avec succès.']);
     }
 }

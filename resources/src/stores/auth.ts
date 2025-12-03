@@ -21,6 +21,9 @@ export const useAuthStore = defineStore('auth', {
     async login(email: string, password: string) {
       this.isLoading = true
       try {
+        // ✅ Récupère le cookie CSRF
+        await axios.get('/sanctum/csrf-cookie')
+
         const res = await axios.post('/api/auth/login', { email, password })
         this.user = res.data.user
         this.isAuthenticated = true
@@ -29,17 +32,16 @@ export const useAuthStore = defineStore('auth', {
         let message = 'Une erreur inconnue est survenue.'
 
         if (!error.response) {
-          message = 'Impossible de contacter le serveur. Vérifiez votre connexion internet.'
+          message = 'Impossible de contacter le serveur.'
         } else if (error.response.status === 422) {
-          // Erreur de validation Laravel
           const errors = error.response.data.errors
           if (errors) {
-            message = Object.values(errors)[0][0] // Premier message d'erreur
+            message = Object.values(errors)[0][0]
           } else {
             message = error.response.data.message || 'Données invalides.'
           }
         } else if (error.response.status === 403) {
-          message = 'Votre adresse email n’est pas vérifiée. Veuillez consulter vos emails.'
+          message = "Votre adresse email n'est pas vérifiée."
         } else if (error.response.status === 401) {
           message = 'Email ou mot de passe incorrect.'
         } else {
@@ -55,67 +57,60 @@ export const useAuthStore = defineStore('auth', {
     /**
      * S'inscrire
      */
-  async register({ name, email, password }: { name: string; email: string; password: string }) {
-  this.isLoading = true
-  try {
-    const response = await axios.post('/api/auth/register', {
-      name,
-      email,
-      password,
-      password_confirmation: password,
-    })
-
-    // Sauvegarde l'email pour la page de vérification
-    localStorage.setItem('lastRegisteredEmail', email)
-
-    // Pas de connexion automatique → utilisateur non authentifié
-    this.user = null
-    this.isAuthenticated = false
-
-    return response.data
-  } catch (err) {
-    const error = err as AxiosError<ApiErrorResponse>
-    let message = 'Une erreur est survenue lors de l’inscription.'
-
-    if (!error.response) {
-      message = 'Impossible de contacter le serveur. Vérifiez votre connexion.'
-    } else if (error.response.status === 422) {
-      const errors = error.response.data.errors
-      if (errors) {
-        message = Object.values(errors)[0][0]
-      } else {
-        message = error.response.data.message || 'Données invalides.'
-      }
-    } else if (error.response.status === 409) {
-      message = 'Cet email est déjà utilisé.'
-    } else {
-      message = error.response.data.message || 'Erreur inconnue. Veuillez réessayer.'
-    }
-
-    throw new Error(message)
-  } finally {
-    this.isLoading = false
-  }
- 
-  },
-  
-    /**
-     * Déconnexion
-     */
-     async logout() {
+     async register({ name, email, password }: { name: string; email: string; password: string }) {
+      this.isLoading = true
       try {
-        await axios.post('/api/auth/logout')
-      } catch (err) {
-        console.warn('Logout API error (optional)', err)
-        // Peu importe l'erreur : on déconnecte localement
-      } finally {
+        // ✅ Récupère le cookie CSRF
+        await axios.get('/sanctum/csrf-cookie')
+
+        const response = await axios.post('/api/auth/register', {
+          name,
+          email,
+          password,
+          password_confirmation: password,
+        })
+
+        localStorage.setItem('lastRegisteredEmail', email)
+
         this.user = null
         this.isAuthenticated = false
-        // Optionnel : supprime les données sensibles du localStorage
-        // localStorage.removeItem('...') // si tu en stockes
+
+        return response.data
+      } catch (err) {
+        const error = err as AxiosError<ApiErrorResponse>
+        let message = "Une erreur est survenue lors de l'inscription."
+
+        if (!error.response) {
+          message = 'Impossible de contacter le serveur.'
+        } else if (error.response.status === 422) {
+          const errors = error.response.data.errors
+          if (errors) {
+            message = Object.values(errors)[0][0]
+          }
+        } else if (error.response.status === 409) {
+          message = 'Cet email est déjà utilisé.'
+        }
+
+        throw new Error(message)
+      } finally {
+        this.isLoading = false
       }
     },
 
+
+    /**
+     * Déconnexion
+     */
+       async logout() {
+      try {
+        await axios.post('/api/auth/logout')
+      } catch (err) {
+        console.warn('Logout error:', err)
+      } finally {
+        this.user = null
+        this.isAuthenticated = false
+      }
+    },
     /**
      * Demander un lien de réinitialisation
      */
@@ -150,7 +145,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await axios.post('/api/auth/reset-password', {
           token,
-          email, 
+          email,
           password,
           password_confirmation: password,
         })
@@ -247,13 +242,12 @@ export const useAuthStore = defineStore('auth', {
     /**
      * Récupérer l'utilisateur connecté
      */
-    async fetchUser() {
+      async fetchUser() {
       try {
         const res = await axios.get('/api/auth/user')
         this.user = res.data.user
         this.isAuthenticated = true
       } catch (err) {
-        // Silencieux : pas d'utilisateur connecté
         this.user = null
         this.isAuthenticated = false
       }
