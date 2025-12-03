@@ -23,7 +23,7 @@
         <img
           v-if="isExpanded || isHovered || isMobileOpen"
           class="dark:hidden"
-          src="/images/logo/logo.svg"
+          src="/images/logo/logo.png"
           alt="Logo"
           width="150"
           height="40"
@@ -46,7 +46,7 @@
       </router-link>
     </div>
     <div
-      class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar"
+      class="flex flex-col overflow-y-auto duration-300 ease-linear custom-scrollbar dark:custom-scrollbar-dark "
     >
       <nav class="mb-6">
         <div class="flex flex-col gap-4">
@@ -230,7 +230,7 @@ import {
   ListIcon,
   PlugInIcon,
 } from "../../icons";
-import SidebarWidget from "./SidebarWidget.vue";
+
 import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
 import { useSidebar } from "@/composables/useSidebar";
 
@@ -303,7 +303,7 @@ const menuGroups = [
           { name: "Videos", path: "/videos", pro: false },
         ],
       },
-      {
+     /* {
         icon: PlugInIcon,
         name: "Authentication",
         subItems: [
@@ -313,7 +313,7 @@ const menuGroups = [
           { name: "ResetPassword", path: "/reset-password", pro: false },
           { name: "VerifyEmail", path: "/verify-email", pro: false}
         ],
-      },
+      },*/
       // ... Add other menu items here
     ],
   },

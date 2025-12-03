@@ -77,51 +77,71 @@
 
       <!-- Changement de mot de passe -->
       <div v-if="activeTab === 'password'" class="max-w-md">
-        <form @submit.prevent="handleChangePassword" class="space-y-4">
+        <form @submit.prevent="handleChangePassword" class="space-y-5">
+          <!-- Mot de passe actuel -->
           <div>
-            <label class="block text-sm font-medium mb-1">Mot de passe actuel</label>
+            <label for="current_password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              Mot de passe actuel<span class="text-error-500">*</span>
+            </label>
             <input
               v-model="form.current_password"
               type="password"
-              class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-700"
-              placeholder="Votre mot de passe actuel"
+              id="current_password"
+              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              placeholder="Entrez votre mot de passe actuel"
             />
           </div>
 
+          <!-- Nouveau mot de passe -->
           <div>
-            <label class="block text-sm font-medium mb-1">Nouveau mot de passe</label>
+            <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              Nouveau mot de passe<span class="text-error-500">*</span>
+            </label>
             <input
               v-model="form.password"
               type="password"
-              class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-700"
-              placeholder="Nouveau mot de passe"
+              id="password"
+              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              placeholder="Entrez un nouveau mot de passe"
             />
           </div>
 
+          <!-- Confirmation -->
           <div>
-            <label class="block text-sm font-medium mb-1">Confirmer</label>
+            <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              Confirmer le mot de passe<span class="text-error-500">*</span>
+            </label>
             <input
               v-model="form.password_confirmation"
               type="password"
-              class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-700"
-              placeholder="Confirmer le mot de passe"
+              id="password_confirmation"
+              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              placeholder="Confirmez le nouveau mot de passe"
             />
           </div>
 
           <!-- Messages de feedback -->
-          <div v-if="successMessage" class="text-sm text-green-600 dark:text-green-400">
+          <div v-if="successMessage" class="p-3 text-sm text-green-600 bg-green-50 rounded-lg dark:bg-green-900/20 dark:text-green-400">
             {{ successMessage }}
           </div>
-          <div v-if="errorMessage" class="text-sm text-red-600 dark:text-red-400">
+          <div v-if="errorMessage" class="p-3 text-sm text-red-600 bg-red-50 rounded-lg dark:bg-red-900/20 dark:text-red-400">
             {{ errorMessage }}
           </div>
 
+          <!-- Bouton -->
           <button
             type="submit"
             :disabled="authStore.isLoading"
-            class="px-4 py-2 bg-brand-500 text-white rounded hover:bg-brand-600 disabled:opacity-60 w-full"
+            class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {{ authStore.isLoading ? 'Mise à jour...' : 'Changer le mot de passe' }}
+            <span v-if="authStore.isLoading" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Mise à jour en cours...
+            </span>
+            <span v-else>Changer le mot de passe</span>
           </button>
         </form>
       </div>
@@ -186,7 +206,6 @@ const form = reactive({
 const errorMessage = ref('')
 const successMessage = ref('')
 
-// Réinitialise les messages quand l'onglet change ou après succès
 watch(activeTab, () => {
   errorMessage.value = ''
   successMessage.value = ''
@@ -204,18 +223,17 @@ const handleChangePassword = async () => {
   errorMessage.value = ''
   successMessage.value = ''
 
+  if (form.password !== form.password_confirmation) {
+    errorMessage.value = 'Les mots de passe ne correspondent pas.'
+    return
+  }
+
   try {
     await authStore.changePassword(form)
-
-    // Succès
     successMessage.value = 'Mot de passe mis à jour avec succès.'
-
-    // Réinitialiser le formulaire
     form.current_password = ''
     form.password = ''
     form.password_confirmation = ''
-
-    // Optionnel : masquer le message après 3s
     setTimeout(() => {
       successMessage.value = ''
     }, 3000)
@@ -225,10 +243,8 @@ const handleChangePassword = async () => {
 }
 
 const confirmLogout = async () => {
-  authStore.user = null
-  authStore.isAuthenticated = false
   try {
-    await authStore.logout() // Utilisez la méthode du store
+    await authStore.logout()
   } finally {
     window.location.href = '/signin'
   }

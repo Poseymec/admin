@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', {
     /**
      * Se connecter
      */
-    async login(email: string, password: string) {
+   async login(email: string, password: string) {
       this.isLoading = true
       try {
         // ✅ Récupère le cookie CSRF

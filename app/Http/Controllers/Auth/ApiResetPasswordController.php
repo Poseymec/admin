@@ -15,6 +15,13 @@ class ApiResetPasswordController extends Controller
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'token.required' => 'Le jeton de réinitialisation est requis.',
+            'email.required' => 'L’adresse e-mail est obligatoire.',
+            'email.email' => 'Veuillez saisir une adresse e-mail valide.',
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.min' => 'Le mot de passe doit contenir au moins :min caractères.',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
         ]);
 
         $status = Password::reset(
@@ -26,11 +33,13 @@ class ApiResetPasswordController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            return response()->json(['message' => __($status)]);
+            return response()->json([
+                'message' => 'Votre mot de passe a été mis à jour avec succès.',
+            ]);
         }
 
         throw ValidationException::withMessages([
-            'email' => [__($status)],
+            'email' => [__($status)], // Laravel traduit automatiquement avec APP_LOCALE=fr
         ]);
     }
 }
