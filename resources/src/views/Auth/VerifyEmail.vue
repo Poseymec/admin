@@ -40,7 +40,7 @@
               <p class="text-gray-600 dark:text-gray-400">
                 Le lien de vérification est invalide ou a expiré.
               </p>
-              
+
               <!-- Formulaire pour renvoyer l'e-mail -->
               <div class="pt-4">
                 <input
@@ -82,9 +82,7 @@
               <router-link to="/" class="block mb-4">
                 <img width="231" height="48" src="/images/logo/auth-logo.svg" alt="Logo" />
               </router-link>
-              <p class="text-center text-gray-400 dark:text-white/60">
-                Modèle de tableau de bord admin gratuit et open-source avec Tailwind CSS
-              </p>
+              
             </div>
           </div>
         </div>

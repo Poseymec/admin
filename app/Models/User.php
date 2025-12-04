@@ -10,11 +10,12 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\CustomVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable , HasApiTokens;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable , HasApiTokens,HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -52,9 +53,24 @@ class User extends Authenticatable implements MustVerifyEmail
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
-    
+
 public function sendEmailVerificationNotification()
 {
     $this->notify(new CustomVerifyEmail);
 }
+
+    protected static function booted()
+    {
+        static::saved(function ($user) {
+            if ($user->hasRole('Super Admin') && $user->role !== 'Super Admin') {
+                $user->updateQuietly(['role' => 'Super Admin']);
+            }
+            if ($user->hasRole('Admin') && $user->role !== 'Admin') {
+                $user->updateQuietly(['role' => 'Admin']);
+            }
+            if ($user->hasRole('Utilisateur') && $user->role !== 'Utilisateur') {
+                $user->updateQuietly(['role' => 'Utilisateur']);
+            }
+        });
+    }
 }

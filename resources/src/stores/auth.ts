@@ -252,5 +252,33 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = false
       }
     },
-  },
+
+    /**
+     *
+     * liste des utilisateurs
+     */
+ async fetchAllUsers() {
+  this.isLoading = true
+  try {
+    await axios.get('/sanctum/csrf-cookie')
+    const res = await axios.get('/api/auth/users')
+
+    // ✅ Vérifie que la structure est correcte
+    if (!res.data || !Array.isArray(res.data.users)) {
+      throw new Error('Format de réponse invalide.')
+    }
+
+    return res.data.users
+  } catch (err: any) {
+    console.error('Erreur fetchAllUsers:', err)
+    if (err.response?.status === 403) {
+      throw new Error('Accès refusé.')
+    }
+    throw new Error('Impossible de charger les utilisateurs.')
+  } finally {
+    this.isLoading = false
+  }
+},
+}
+
 })

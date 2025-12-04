@@ -25,5 +25,6 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::post('/logout', [ApiLogoutController::class, 'logout']);
     Route::get('/user', [ApiUserController::class, 'user']);
+    Route::get('/users', [ApiUserController::class, 'index']);
     Route::put('/password', [ApiChangePasswordController::class, '__invoke']);
 });

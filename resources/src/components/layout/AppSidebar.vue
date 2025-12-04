@@ -276,6 +276,7 @@ const menuGroups = [
         subItems: [
           { name: "Black Page", path: "/blank", pro: false },
           { name: "404 Page", path: "/error-404", pro: false },
+          { name: "Utilisateurs", path: "/users-list", pro: false },
         ],
       },
     ],

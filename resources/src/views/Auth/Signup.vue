@@ -5,7 +5,7 @@
         class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900"
       >
         <div class="flex flex-col flex-1 w-full lg:w-1/2">
-         
+
 
           <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
             <div class="mb-5 sm:mb-8">
@@ -204,9 +204,7 @@
               <router-link to="/" class="block mb-4">
                 <img width="231" height="48" src="/images/logo/auth-logo.svg" alt="Logo" />
               </router-link>
-              <p class="text-center text-gray-400 dark:text-white/60">
-                Modèle de tableau de bord admin gratuit et open-source avec Tailwind CSS
-              </p>
+              
             </div>
           </div>
         </div>

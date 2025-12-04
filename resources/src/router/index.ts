@@ -28,6 +28,7 @@ const protectedRoutes: RouteRecordRaw[] = [
   { path: '/images', name: 'Images', component: () => import('@/views/UiElements/Images.vue'), meta: { title: 'Images' } },
   { path: '/videos', name: 'Videos', component: () => import('@/views/UiElements/Videos.vue'), meta: { title: 'Videos' } },
   { path: '/blank', name: 'Blank', component: () => import('@/views/Pages/BlankPage.vue'), meta: { title: 'Blank' } },
+  { path: '/users-list', name: 'UsersList', component: () => import('@/views/Pages/UsersList.vue'), meta: { title: 'UsersList' } },
   { path: '/change-password', name: 'ChangePassword', component: () => import('@/views/Auth/ChangePassword.vue'), meta: { title: 'ChangePassword' } },
 ]
 
