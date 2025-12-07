@@ -31,7 +31,6 @@ const protectedRoutes: RouteRecordRaw[] = [
   { path: '/users-list', name: 'UsersList', component: () => import('@/views/Pages/UsersList.vue'), meta: { title: 'UsersList' } },
   { path: '/change-password', name: 'ChangePassword', component: () => import('@/views/Auth/ChangePassword.vue'), meta: { title: 'ChangePassword' } },
 ]
-
 // Routes d'erreur
 const errorRoutes: RouteRecordRaw[] = [
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/Errors/FourZeroFour.vue'), meta: { title: '404 Error' } },
@@ -75,5 +74,4 @@ router.beforeEach(async (to, from, next) => {
   // Sinon, autoriser la navigation
   next()
 })
-
 export default router

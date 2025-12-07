@@ -1,20 +1,14 @@
-import api from "./axios";
+import api from '@/services/axios'
 
-// Initialisation CSRF (obligatoire avant login/register)
-export const csrf = () => api.get("/sanctum/csrf-cookie");
+// CSRF
+export const csrf = () => api.get('/sanctum/csrf-cookie')
 
-// Login
+// Auth
 export const login = async (email: string, password: string) => {
-  await csrf();
-  return api.post("/login", { email, password });
-};
+  await csrf()
+  return api.post('/api/auth/login', { email, password })
+}
 
-// Logout
-export const logout = async () => {
-  return api.post("/logout");
-};
+export const logout = async () => api.post('/api/auth/logout')
 
-// Récupération de l'utilisateur
-export const getUser = async () => {
-  return api.get("/api/user");
-};
+export const getUser = async () => api.get('/api/auth/user')

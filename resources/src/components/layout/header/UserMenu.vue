@@ -1,23 +1,25 @@
 <template>
-  <div v-if="isLoggingOut" class="h-11 w-11 flex items-center justify-center">
-    <div class="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-  </div>
+  <!-- ⏳ Rien tant qu’on n’est pas prêt -->
+  <div v-if="!ready" class="h-11 w-11" />
+
+  <!-- ✅ Connecté : on affiche le VRAI profil -->
   <div v-else class="relative" ref="dropdownRef">
-    <!-- Bouton principal -->
     <button
       class="flex items-center text-gray-700 dark:text-gray-400"
       @click.prevent="toggleDropdown"
     >
-      <!-- Avatar avec première lettre du nom -->
       <span
         class="flex items-center justify-center mr-3 overflow-hidden rounded-full h-11 w-11 bg-brand-500 text-white font-semibold"
       >
         {{ userInitial }}
       </span>
 
-      <span class="block mr-1 font-medium text-theme-sm">{{ userName }}</span>
+      <span class="block mr-1 font-medium text-theme-sm">{{ user.name }}</span>
 
-      <ChevronDownIcon :class="{ 'rotate-180': dropdownOpen }" class="h-5 w-5" />
+      <ChevronDownIcon
+        :class="{ 'rotate-180': dropdownOpen }"
+        class="h-5 w-5"
+      />
     </button>
 
     <!-- Dropdown -->
@@ -30,9 +32,7 @@
         class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         @click="closeDropdown"
       >
-        <UserCircleIcon
-          class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 h-5 w-5"
-        />
+        <UserCircleIcon class="h-5 w-5" />
         Profile
       </router-link>
 
@@ -40,9 +40,7 @@
         @click="signOut"
         class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
       >
-        <LogoutIcon
-          class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 h-5 w-5"
-        />
+        <LogoutIcon class="h-5 w-5" />
         Sign out
       </button>
     </div>
@@ -50,64 +48,63 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronDownIcon, LogoutIcon, UserCircleIcon } from '@/icons'
+import {
+  ChevronDownIcon,
+  LogoutIcon,
+  UserCircleIcon
+} from '@/icons'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
+/* ---------- réactifs ---------- */
 const dropdownOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
-const isLoggingOut = ref(false)
+const ready = ref(false) // true quand on a le vrai user
+
 const authStore = useAuthStore()
 
-const userName = computed(() => {
-  return authStore.user?.name || 'User'
-})
+/* ---------- données ---------- */
+const user = computed(() => authStore.user!) // on garantit qu’il est là
+const userInitial = computed(() => user.value.name.charAt(0).toUpperCase())
 
-const userInitial = computed(() => {
-  return userName.value.charAt(0).toUpperCase()
-})
-
-const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value
-}
-
-const closeDropdown = () => {
-  dropdownOpen.value = false
-}
-
-const signOut = async () => {
-  isLoggingOut.value = true
-
-  // ✅ Effet immédiat : vide l'UI utilisateur
-  authStore.user = null
-  authStore.isAuthenticated = false
-
-  closeDropdown()
-
-  try {
-    // Appel optionnel à l'API de déconnexion
-    await axios.post('/api/auth/logout')
-  } catch (err) {
-    // On ignore les erreurs : l'utilisateur est déjà déconnecté visuellement
-    console.warn('Logout API call failed, but UI is cleared.')
-  } finally {
-    // ✅ Redirection propre vers la page de login
-    window.location.href = '/signin'
-  }
-}
-
-const handleClickOutside = (event: Event) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-    closeDropdown()
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+/* ---------- cycle de vie ---------- */
+onMounted(async () => {
+  // on attend d’avoir le user avant d’afficher quoi que ce soit
+  if (!authStore.user) await authStore.fetchUser()
+  ready.value = true
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+/* ---------- méthodes ---------- */
+const toggleDropdown = () => {
+  dropdownOpen.value = !dropdownOpen.value
+}
+const closeDropdown = () => {
+  dropdownOpen.value = false
+}
+
+const signOut = async () => {
+  // on vide l’UI immédiatement
+  authStore.user = null
+  authStore.isAuthenticated = false
+  closeDropdown()
+
+  try {
+    await axios.post('/api/auth/logout')
+  } catch {
+    // on ignore l’erreur éventuelle
+  } finally {
+    window.location.href = '/signin'
+  }
+}
+
+const handleClickOutside = (e: Event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
+    closeDropdown()
+  }
+}
 </script>

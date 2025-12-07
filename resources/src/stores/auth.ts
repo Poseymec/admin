@@ -14,6 +14,11 @@ export const useAuthStore = defineStore('auth', {
     isLoading: false,
   }),
 
+  getters: {
+    isPending: (state) => state.user?.role === 'User',
+    isAdmin:   (state) => state.user?.role === 'Admin',
+    isSuper:   (state) => state.user?.role === 'Super Admin',
+  },
   actions: {
     /**
      * Se connecter
@@ -279,6 +284,43 @@ export const useAuthStore = defineStore('auth', {
     this.isLoading = false
   }
 },
+
+async updateUserRole(userId: number, role: string) {
+  try {
+    await axios.patch(`/api/auth/users/${userId}/role`, { role });
+  } catch (err: any) {
+    const res = err.response;
+    if (res?.status === 400) {
+      throw new Error(res.data.message || 'Vous ne pouvez pas modifier votre propre rôle.');
+    }
+    if (res?.status === 403) {
+      throw new Error(res.data.message || 'Action non autorisée.');
+    }
+    if (res?.status === 422) {
+      const msg = Object.values((res.data.errors as Record<string, string[]>) || {})[0]?.[0];
+      throw new Error(msg || 'Données invalides.');
+    }
+    throw new Error(res?.data?.message || 'Erreur lors de la mise à jour du rôle.');
+  }
+},
+
+async deleteUser(userId: number) {
+  try {
+    await axios.delete(`/api/auth/users/${userId}`);
+  } catch (err: any) {
+    const res = err.response;
+    if (res?.status === 400) {
+      throw new Error(res.data.message || 'Vous ne pouvez pas supprimer votre propre compte.');
+    }
+    if (res?.status === 403) {
+      throw new Error(res.data.message || 'Action non autorisée.');
+    }
+    if (res?.status === 404) {
+      throw new Error('Utilisateur introuvable.');
+    }
+    throw new Error(res?.data?.message || 'Erreur lors de la suppression.');
+  }
+}
 }
 
 })

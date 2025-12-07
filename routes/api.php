@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\ApiResetPasswordController;
 use App\Http\Controllers\Auth\ApiEmailVerificationNotificationController;
 use App\Http\Controllers\Auth\ApiVerifyEmailController;
 use App\Http\Controllers\Auth\ApiChangePasswordController;
+use App\Http\Controllers\Auth\ApiUserRoleController;
 
 // Routes publiques
 Route::prefix('auth')->group(function () {
@@ -24,7 +25,19 @@ Route::prefix('auth')->group(function () {
 // Routes protégées (authentification par session/cookie)
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::post('/logout', [ApiLogoutController::class, 'logout']);
-    Route::get('/user', [ApiUserController::class, 'user']);
-    Route::get('/users', [ApiUserController::class, 'index']);
-    Route::put('/password', [ApiChangePasswordController::class, '__invoke']);
+
+    /** route autoriser pour les admin et super admin */
+    Route::middleware('role:Admin|Super Admin')->group(function (){
+        Route::get('/user', [ApiUserController::class, 'user']);
+        Route::put('/password', [ApiChangePasswordController::class, '__invoke']);
+    });
+
+    /**route uniquement pour les super admin  */
+    Route::middleware( 'role:Super Admin')->group(function () {
+
+        Route::get('/users', [ApiUserController::class, 'index']);
+        Route::patch('/users/{user}/role', [ApiUserRoleController::class, 'updateRole']);
+        Route::delete('/users/{user}', [ApiUserController::class, 'destroy']);
+
+    });
 });

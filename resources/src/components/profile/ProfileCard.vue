@@ -1,6 +1,31 @@
 <template>
-  <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-    <!-- En-tête : avatar + bouton déconnexion -->
+  <!-- ⏳ Chargement / non connecté : on n’affiche RIEN -->
+  <div v-if="!user" class="flex items-center justify-center h-40">
+    <svg
+      class="animate-spin h-6 w-6 text-brand-500"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      />
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  </div>
+
+  <!-- ✅ Connecté : on affiche le VRAI profil -->
+  <div v-else class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+    <!-- En-tête -->
     <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
       <div class="flex flex-col items-center w-full gap-6 xl:flex-row">
         <div
@@ -16,7 +41,7 @@
             {{ user.email }}
           </p>
           <p class="mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-            {{ user.role || 'Utilisateur' }}
+            {{ user.role }}
           </p>
         </div>
       </div>
@@ -70,7 +95,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Rôle</label>
-            <p class="mt-1 text-gray-900 dark:text-white">{{ user.role || 'Utilisateur' }}</p>
+            <p class="mt-1 text-gray-900 dark:text-white">{{ user.role }}</p>
           </div>
         </div>
       </div>
@@ -191,7 +216,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import Modal from '@/components/profile/Modal.vue'
+//import Modal from '@/components/profile/Modal.vue'
 
 const authStore = useAuthStore()
 const activeTab = ref('info')
@@ -211,13 +236,9 @@ watch(activeTab, () => {
   successMessage.value = ''
 })
 
-const user = computed(() => authStore.user || {
-  name: 'Utilisateur',
-  email: 'non-connecte@example.com',
-  role: null,
-})
-
-const userInitial = computed(() => user.value.name.charAt(0).toUpperCase())
+/* ✅ on n’a PLUS de fallback */
+const user = computed(() => authStore.user)
+const userInitial = computed(() => user.value?.name.charAt(0).toUpperCase() ?? '')
 
 const handleChangePassword = async () => {
   errorMessage.value = ''
