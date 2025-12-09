@@ -23,6 +23,7 @@ class ApiUserController extends Controller
             'email' => $user->email,
             'role'  => $user->getRoleNames()->first() ?? 'Utilisateur', // rôle Spatie
         ]);
+        \Log::info('Route /api/auth/user appelée', ['user' => $request->user()?->getRoleNames()->first()]);
     }
 
     public function index(Request $request)
@@ -46,8 +47,8 @@ class ApiUserController extends Controller
                 'id'    => $u->id,
                 'name'  => $u->name,
                 'email' => $u->email,
-                'role'  => $u->getRoleNames()->first(),
-                'created_at' => optional($u->created_at)->toDateTimeString(),
+            'role'  => $request->user()->getRoleNames()->first() ?? 'User',
+            'created_at' => optional($u->created_at)->toDateTimeString(),
             ]);
 
         return response()->json(['users' => $users]);

@@ -8,16 +8,15 @@
   </div>
 </template>
 
-<script setup>
-import { useAuthStore } from '@/stores/auth';
-import { useRouter } from 'vue-router';
+<script setup lang="ts">
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
-const auth = useAuthStore();
-const router = useRouter();
+const auth = useAuthStore()
+const router = useRouter()
 
-function logout() {
-  auth.logout().then(() => {
-    router.push({ name: 'Signin' });
-  });
+async function logout() {
+  await auth.logout()
+  router.push({ name: 'Signin' })
 }
 </script>

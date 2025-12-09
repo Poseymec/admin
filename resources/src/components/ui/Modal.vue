@@ -18,3 +18,6 @@ interface ModalProps {
 defineProps<ModalProps>()
 defineEmits(['close'])
 </script>
+<script lang="ts">
+export default {}
+</script>

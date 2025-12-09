@@ -179,7 +179,13 @@ const handleSubmit = async () => {
 
   try {
     await authStore.login(email.value, password.value)
+    //router.push({ name: 'Ecommerce' })
+    // ✅ on force la redirection selon le rôle
+    if (authStore.user?.role === 'User') {
+    router.push({ name: 'Pending' })
+    } else {
     router.push({ name: 'Ecommerce' })
+    }
   } catch (err: any) {
     // Affiche l'erreur dans l'UI (pas de alert)
     errorMessage.value = err.message || "Une erreur inattendue s’est produite."

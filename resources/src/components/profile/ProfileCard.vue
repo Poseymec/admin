@@ -1,5 +1,5 @@
 <template>
-  <!-- ⏳ Chargement / non connecté : on n’affiche RIEN -->
+  <!-- ⏳ Chargement ou non connecté : spinner uniquement -->
   <div v-if="!user" class="flex items-center justify-center h-40">
     <svg
       class="animate-spin h-6 w-6 text-brand-500"
@@ -23,7 +23,7 @@
     </svg>
   </div>
 
-  <!-- ✅ Connecté : on affiche le VRAI profil -->
+  <!-- ✅ Connecté : affichage du profil -->
   <div v-else class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
     <!-- En-tête -->
     <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
@@ -80,9 +80,9 @@
       </nav>
     </div>
 
-    <!-- Contenu -->
+    <!-- Contenu des onglets -->
     <div class="mt-6">
-      <!-- Informations -->
+      <!-- Informations personnelles -->
       <div v-if="activeTab === 'info'" class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
@@ -101,51 +101,39 @@
       </div>
 
       <!-- Changement de mot de passe -->
-      <div v-if="activeTab === 'password'" class="max-w-md">
+      <div v-else-if="activeTab === 'password'" class="max-w-md">
         <form @submit.prevent="handleChangePassword" class="space-y-5">
           <!-- Mot de passe actuel -->
-          <div>
-            <label for="current_password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Mot de passe actuel<span class="text-error-500">*</span>
-            </label>
-            <input
-              v-model="form.current_password"
-              type="password"
-              id="current_password"
-              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-              placeholder="Entrez votre mot de passe actuel"
-            />
-          </div>
+          <PasswordField
+            v-model="form.current_password"
+            label="Mot de passe actuel"
+            id="current_password"
+            placeholder="Entrez votre mot de passe actuel"
+            :show-toggle="true"
+            v-model:show-password="showCurrentPassword"
+          />
 
           <!-- Nouveau mot de passe -->
-          <div>
-            <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Nouveau mot de passe<span class="text-error-500">*</span>
-            </label>
-            <input
-              v-model="form.password"
-              type="password"
-              id="password"
-              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-              placeholder="Entrez un nouveau mot de passe"
-            />
-          </div>
+          <PasswordField
+            v-model="form.password"
+            label="Nouveau mot de passe"
+            id="password"
+            placeholder="Entrez un nouveau mot de passe"
+            :show-toggle="true"
+            v-model:show-password="showNewPassword"
+          />
 
           <!-- Confirmation -->
-          <div>
-            <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Confirmer le mot de passe<span class="text-error-500">*</span>
-            </label>
-            <input
-              v-model="form.password_confirmation"
-              type="password"
-              id="password_confirmation"
-              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-              placeholder="Confirmez le nouveau mot de passe"
-            />
-          </div>
+          <PasswordField
+            v-model="form.password_confirmation"
+            label="Confirmer le mot de passe"
+            id="password_confirmation"
+            placeholder="Confirmez le nouveau mot de passe"
+            :show-toggle="true"
+            v-model:show-password="showConfirmPassword"
+          />
 
-          <!-- Messages de feedback -->
+          <!-- Messages -->
           <div v-if="successMessage" class="p-3 text-sm text-green-600 bg-green-50 rounded-lg dark:bg-green-900/20 dark:text-green-400">
             {{ successMessage }}
           </div>
@@ -161,8 +149,8 @@
           >
             <span v-if="authStore.isLoading" class="flex items-center">
               <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
               Mise à jour en cours...
             </span>
@@ -173,7 +161,7 @@
     </div>
   </div>
 
-  <!-- Modal déconnexion -->
+  <!-- Modal de déconnexion -->
   <Modal v-if="showLogoutModal" @close="showLogoutModal = false">
     <template #body>
       <div class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 dark:bg-gray-900">
@@ -202,9 +190,10 @@
             </button>
             <button
               @click="confirmLogout"
-              class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+              :disabled="authStore.isLoading"
+              class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-60"
             >
-              Se déconnecter
+              {{ authStore.isLoading ? 'Déconnexion...' : 'Se déconnecter' }}
             </button>
           </div>
         </div>
@@ -216,9 +205,11 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-//import Modal from '@/components/profile/Modal.vue'
+import Modal from '@/components/ui/Modal.vue'
+import PasswordField from '@/components/ui/PasswordField.vue'
 
 const authStore = useAuthStore()
+
 const activeTab = ref('info')
 const showLogoutModal = ref(false)
 
@@ -228,18 +219,24 @@ const form = reactive({
   password_confirmation: '',
 })
 
+const showCurrentPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
+
 const errorMessage = ref('')
 const successMessage = ref('')
 
+// Réinitialise les messages à l’onglet
 watch(activeTab, () => {
   errorMessage.value = ''
   successMessage.value = ''
 })
 
-/* ✅ on n’a PLUS de fallback */
+// Données utilisateur
 const user = computed(() => authStore.user)
 const userInitial = computed(() => user.value?.name.charAt(0).toUpperCase() ?? '')
 
+// Changement de mot de passe
 const handleChangePassword = async () => {
   errorMessage.value = ''
   successMessage.value = ''
@@ -255,19 +252,24 @@ const handleChangePassword = async () => {
     form.current_password = ''
     form.password = ''
     form.password_confirmation = ''
-    setTimeout(() => {
-      successMessage.value = ''
-    }, 3000)
+    showCurrentPassword.value = false
+    showNewPassword.value = false
+    showConfirmPassword.value = false
+    setTimeout(() => (successMessage.value = ''), 3000)
   } catch (err: any) {
-    errorMessage.value = err.message || 'Une erreur est survenue.'
+    errorMessage.value = err.message || 'Une erreur est survenue lors de la mise à jour.'
   }
 }
 
+// Déconnexion fiable
 const confirmLogout = async () => {
   try {
     await authStore.logout()
-  } finally {
+    // Redirection uniquement après succès côté serveur
     window.location.href = '/signin'
+  } catch (err) {
+    console.error('Erreur déconnexion:', err)
+    errorMessage.value = 'Impossible de se déconnecter. Réessayez.'
   }
 }
 </script>

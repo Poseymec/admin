@@ -53,7 +53,7 @@
           <div v-for="(menuGroup, groupIndex) in menuGroups" :key="groupIndex">
             <h2
               :class="[
-                'mb-4 text-xs uppercase flex leading-[20px] text-gray-400',
+                'mb-4 text-xs uppercase flex leading-5 text-gray-400',
                 !isExpanded && !isHovered
                   ? 'lg:justify-center'
                   : 'justify-start',

@@ -11,14 +11,28 @@ import App from './App.vue'
 import router from './router'
 import VueApexCharts from 'vue3-apexcharts'
 import api from '@/services/axios'
+import { useAuthStore } from '@/stores/auth'
 
-// Initialise le cookie CSRF une seule fois au démarrage
+const pinia = createPinia()
+
+/* 1. CSRF */
 api.get('/sanctum/csrf-cookie')
-  .then(() => {
-    const app = createApp(App)
-    app.use(createPinia())
-    app.use(router)
-    app.use(VueApexCharts)
-    app.mount('#app')
+  /* 2. User */
+  .then(() => api.get('/api/auth/user'))
+  .then((res) => {
+    pinia.use(() => {
+      const authStore = useAuthStore()
+      authStore.user = res.data
+      authStore.isAuthenticated = true
+    })
   })
-  .catch((err) => console.error('CSRF init failed', err))
+  .catch(() => {
+    pinia.use(() => {
+      const authStore = useAuthStore()
+      authStore.$reset()
+    })
+  })
+  /* 3. Montage */
+  .finally(() => {
+    createApp(App).use(pinia).use(router).use(VueApexCharts).mount('#app')
+  })

@@ -1,326 +1,224 @@
-// stores/auth.ts
 import { defineStore } from 'pinia'
 import axios, { AxiosError } from 'axios'
+import api from '@/services/axios'
 
-interface ApiErrorResponse {
-  message?: string
-  errors?: Record<string, string[]>
+/* ---------- types ---------- */
+export interface User {
+  id: number
+  name: string
+  email: string
+  role: string
 }
 
+interface ValidationError {
+  errors: Record<string, string[]>
+}
+
+/* ---------- store ---------- */
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null as null | Record<string, any>,
+    user: null as User | null,
     isAuthenticated: false,
     isLoading: false,
   }),
 
   getters: {
-    isPending: (state) => state.user?.role === 'User',
-    isAdmin:   (state) => state.user?.role === 'Admin',
-    isSuper:   (state) => state.user?.role === 'Super Admin',
+    isPending: (s) => s.user?.role === 'User',
+    isAdmin:   (s) => s.user?.role === 'Admin',
+    isSuper:   (s) => s.user?.role === 'Super Admin',
   },
+
   actions: {
-    /**
-     * Se connecter
-     */
-   async login(email: string, password: string) {
+    /* ------ CSRF ------ */
+    async csrf() {
+      await api.get('/sanctum/csrf-cookie')
+    },
+
+    /* ------ login ------ */
+    async login(email: string, password: string) {
       this.isLoading = true
       try {
-        // ✅ Récupère le cookie CSRF
-        await axios.get('/sanctum/csrf-cookie')
-
-        const res = await axios.post('/api/auth/login', { email, password })
-        this.user = res.data.user
+        await this.csrf()
+        const { data } = await api.post('/api/auth/login', { email, password })
+        this.user = data.user
         this.isAuthenticated = true
-      } catch (err) {
-        const error = err as AxiosError<ApiErrorResponse>
-        let message = 'Une erreur inconnue est survenue.'
-
-        if (!error.response) {
-          message = 'Impossible de contacter le serveur.'
-        } else if (error.response.status === 422) {
-          const errors = error.response.data.errors
-          if (errors) {
-            message = Object.values(errors)[0][0]
-          } else {
-            message = error.response.data.message || 'Données invalides.'
-          }
-        } else if (error.response.status === 403) {
-          message = "Votre adresse email n'est pas vérifiée."
-        } else if (error.response.status === 401) {
-          message = 'Email ou mot de passe incorrect.'
-        } else {
-          message = error.response.data.message || 'Erreur lors de la connexion.'
+      } catch (err: any) {
+        const res = (err as AxiosError<ValidationError>).response
+        if (res?.status === 422) {
+          const firstKey = Object.keys(res.data.errors || {})[0]
+          throw new Error(res.data.errors?.[firstKey]?.[0] || 'Données invalides')
         }
-
-        throw new Error(message)
+        if (res?.status === 401) throw new Error('Identifiants incorrects')
+        throw new Error('Erreur de connexion')
       } finally {
         this.isLoading = false
       }
     },
 
-    /**
-     * S'inscrire
-     */
-     async register({ name, email, password }: { name: string; email: string; password: string }) {
+    /* ------ register ------ */
+    async register(payload: { name: string; email: string; password: string }) {
       this.isLoading = true
       try {
-        // ✅ Récupère le cookie CSRF
-        await axios.get('/sanctum/csrf-cookie')
-
-        const response = await axios.post('/api/auth/register', {
-          name,
-          email,
-          password,
-          password_confirmation: password,
+        await this.csrf()
+        const { data } = await api.post('/api/auth/register', {
+          ...payload,
+          password_confirmation: payload.password,
         })
-
-        localStorage.setItem('lastRegisteredEmail', email)
-
-        this.user = null
-        this.isAuthenticated = false
-
-        return response.data
-      } catch (err) {
-        const error = err as AxiosError<ApiErrorResponse>
-        let message = "Une erreur est survenue lors de l'inscription."
-
-        if (!error.response) {
-          message = 'Impossible de contacter le serveur.'
-        } else if (error.response.status === 422) {
-          const errors = error.response.data.errors
-          if (errors) {
-            message = Object.values(errors)[0][0]
-          }
-        } else if (error.response.status === 409) {
-          message = 'Cet email est déjà utilisé.'
+        localStorage.setItem('lastRegisteredEmail', payload.email)
+        this.$reset()
+        return data
+      } catch (err: any) {
+        const res = (err as AxiosError<ValidationError>).response
+        if (res?.status === 422) {
+          const firstKey = Object.keys(res.data.errors || {})[0]
+          throw new Error(res.data.errors?.[firstKey]?.[0] || 'Données invalides')
         }
-
-        throw new Error(message)
+        if (res?.status === 409) throw new Error('Cet email est déjà utilisé.')
+        throw new Error('Erreur d’inscription')
       } finally {
         this.isLoading = false
       }
     },
 
-
-    /**
-     * Déconnexion
-     */
-       async logout() {
-      try {
-        await axios.post('/api/auth/logout')
-      } catch (err) {
-        console.warn('Logout error:', err)
-      } finally {
-        this.user = null
-        this.isAuthenticated = false
-      }
+    /* ------ logout ------ */
+    async logout() {
+      try { await api.post('/api/auth/logout') } catch {}
+      this.$reset()
     },
-    /**
-     * Demander un lien de réinitialisation
-     */
+
+    /* ------ forgot password ------ */
     async forgotPassword(email: string) {
       this.isLoading = true
       try {
-        await axios.post('/api/auth/forgot-password', { email })
-      } catch (err) {
-        const error = err as AxiosError<ApiErrorResponse>
-        let message = 'Impossible d’envoyer le lien de réinitialisation.'
-
-        if (!error.response) {
-          message = 'Pas de connexion au serveur.'
-        } else if (error.response.status === 422) {
-          const errors = error.response.data.errors
-          message = errors?.email ? errors.email[0] : 'Adresse email invalide.'
-        } else {
-          message = error.response.data.message || 'Erreur inconnue.'
-        }
-
-        throw new Error(message)
+        await api.post('/api/auth/forgot-password', { email })
+      } catch (err: any) {
+        const res = (err as AxiosError<ValidationError>).response
+        if (res?.status === 422) throw new Error(res.data.errors?.email?.[0] || 'Email invalide')
+        throw new Error('Erreur lors de l’envoi du lien')
       } finally {
         this.isLoading = false
       }
     },
 
-    /**
-     * Réinitialiser le mot de passe
-     */
-    async resetPassword(  token: string,email:string, password: string) {
+    /* ------ reset password ------ */
+    async resetPassword(token: string, email: string, password: string) {
       this.isLoading = true
       try {
-        await axios.post('/api/auth/reset-password', {
+        await api.post('/api/auth/reset-password', {
           token,
           email,
           password,
           password_confirmation: password,
         })
-      } catch (err) {
-        const error = err as AxiosError<ApiErrorResponse>
-        let message = 'Impossible de réinitialiser le mot de passe.'
-
-        if (!error.response) {
-          message = 'Pas de connexion au serveur.'
-        } else if (error.response.status === 422) {
-          const errors = error.response.data.errors
-          if (errors) {
-            message = Object.values(errors)[0][0]
-          } else {
-            message = error.response.data.message || 'Données invalides.'
-          }
-        } else if (error.response.status === 400) {
-          message = 'Le lien de réinitialisation est invalide ou a expiré.'
-        } else {
-          message = error.response.data.message || 'Erreur inconnue.'
+      } catch (err: any) {
+        const res = (err as AxiosError<ValidationError>).response
+        if (res?.status === 422) {
+          const firstKey = Object.keys(res.data.errors || {})[0]
+          throw new Error(res.data.errors?.[firstKey]?.[0] || 'Données invalides')
         }
-
-        throw new Error(message)
+        if (res?.status === 400) throw new Error('Lien invalide ou expiré')
+        throw new Error('Erreur de réinitialisation')
       } finally {
         this.isLoading = false
       }
     },
-      async changePassword(payload: {
-      current_password: string
-      password: string
-      password_confirmation: string
-    }) {
+
+    /* ------ change password ------ */
+    async changePassword(payload: { current_password: string; password: string; password_confirmation: string }) {
       this.isLoading = true
       try {
-        await axios.put('/api/auth/password', payload)
-        // Optionnel : déconnecte ou notifie l'utilisateur
-        alert('Mot de passe mis à jour avec succès.')
+        await api.put('/api/auth/password', payload)
       } catch (err: any) {
-        let message = 'Impossible de changer le mot de passe.'
-
-        if (err.response?.status === 422) {
-          const errors = err.response.data.errors
-          message = errors?.current_password?.[0] || errors?.password?.[0] || 'Données invalides.'
-        } else if (err.response?.status === 401) {
-          message = 'Session expirée. Veuillez vous reconnecter.'
-        } else {
-          message = err.response?.data?.message || 'Erreur inconnue.'
+        const res = (err as AxiosError<ValidationError>).response
+        if (res?.status === 422) {
+          const firstKey = Object.keys(res.data.errors || {})[0]
+          throw new Error(res.data.errors?.[firstKey]?.[0] || 'Données invalides')
         }
-
-        throw new Error(message)
+        if (res?.status === 401) throw new Error('Session expirée')
+        throw new Error('Erreur lors du changement')
       } finally {
         this.isLoading = false
       }
     },
 
-    /**
-     * Vérifier l'email
-     */
+    /* ------ verify email ------ */
     async verifyEmail(uid: string, hash: string) {
       this.isLoading = true
       try {
-        await axios.post('/api/auth/email/verify', { uid, hash })
-      } catch (err) {
-        const error = err as AxiosError<ApiErrorResponse>
-        let message = 'La vérification de l’email a échoué.'
-
-        if (!error.response) {
-          message = 'Pas de connexion au serveur.'
-        } else if (error.response.status === 400) {
-          message = 'Le lien de vérification est invalide ou a déjà été utilisé.'
-        } else if (error.response.status === 422) {
-          message = error.response.data.message || 'Données invalides.'
-        } else {
-          message = error.response.data.message || 'Erreur inconnue.'
-        }
-
-        throw new Error(message)
+        await api.post('/api/auth/email/verify', { uid, hash })
+      } catch (err: any) {
+        const res = (err as AxiosError<{ message?: string }>).response
+        if (res?.status === 400) throw new Error('Lien invalide ou déjà utilisé')
+        throw new Error(res?.data?.message || 'Vérification échouée')
       } finally {
         this.isLoading = false
       }
     },
-    /**
-     * Renvoyer l'email de vérification
-     */
-   async resendVerificationEmail(email: string) {
-  this.isLoading = true
-  try {
-    await axios.post('/api/auth/email/verification-notification', { email })
-  } finally {
-    this.isLoading = false
-  }
-},
 
-    /**
-     * Récupérer l'utilisateur connecté
-     */
-      async fetchUser() {
+    /* ------ resend verification email ------ */
+    async resendVerificationEmail(email: string) {
+      this.isLoading = true
       try {
-        const res = await axios.get('/api/auth/user')
-        this.user = res.data.user
-        this.isAuthenticated = true
-      } catch (err) {
-        this.user = null
-        this.isAuthenticated = false
+        await api.post('/api/auth/email/verification-notification', { email })
+      } finally {
+        this.isLoading = false
       }
     },
 
-    /**
-     *
-     * liste des utilisateurs
-     */
- async fetchAllUsers() {
-  this.isLoading = true
-  try {
-    await axios.get('/sanctum/csrf-cookie')
-    const res = await axios.get('/api/auth/users')
+    /* ------ fetch connected user ------ */
+    async fetchUser() {
+      try {
+        const { data } = await api.get('/api/auth/user')
+        this.user = data
+           console.log('📦 user reçu', data)
+        this.isAuthenticated = true
+      } catch {
+        this.$reset()
+      }
+    },
 
-    // ✅ Vérifie que la structure est correcte
-    if (!res.data || !Array.isArray(res.data.users)) {
-      throw new Error('Format de réponse invalide.')
-    }
+    /* ------ users list (admin) ------ */
+    async fetchAllUsers() {
+      this.isLoading = true
+      try {
+        const { data } = await api.get('/api/auth/users')
+        if (!Array.isArray(data.users)) throw new Error('Format invalide')
+        return data.users
+      } catch (err: any) {
+        if (err.response?.status === 403) throw new Error('Accès refusé')
+        throw new Error('Impossible de charger les utilisateurs')
+      } finally {
+        this.isLoading = false
+      }
+    },
 
-    return res.data.users
-  } catch (err: any) {
-    console.error('Erreur fetchAllUsers:', err)
-    if (err.response?.status === 403) {
-      throw new Error('Accès refusé.')
-    }
-    throw new Error('Impossible de charger les utilisateurs.')
-  } finally {
-    this.isLoading = false
-  }
-},
+    /* ------ update role ------ */
+    async updateUserRole(userId: number, role: string) {
+      try {
+        await api.patch(`/api/auth/users/${userId}/role`, { role })
+      } catch (err: any) {
+        const res = err.response
+        if (res?.status === 400) throw new Error(res.data.message || 'Vous ne pouvez pas modifier votre propre rôle')
+        if (res?.status === 403) throw new Error('Action non autorisée')
+        if (res?.status === 422) {
+          const firstKey = Object.keys(res.data.errors || {})[0]
+          throw new Error(res.data.errors?.[firstKey]?.[0] || 'Données invalides')
+        }
+        throw new Error(res?.data?.message || 'Erreur lors de la mise à jour du rôle')
+      }
+    },
 
-async updateUserRole(userId: number, role: string) {
-  try {
-    await axios.patch(`/api/auth/users/${userId}/role`, { role });
-  } catch (err: any) {
-    const res = err.response;
-    if (res?.status === 400) {
-      throw new Error(res.data.message || 'Vous ne pouvez pas modifier votre propre rôle.');
-    }
-    if (res?.status === 403) {
-      throw new Error(res.data.message || 'Action non autorisée.');
-    }
-    if (res?.status === 422) {
-      const msg = Object.values((res.data.errors as Record<string, string[]>) || {})[0]?.[0];
-      throw new Error(msg || 'Données invalides.');
-    }
-    throw new Error(res?.data?.message || 'Erreur lors de la mise à jour du rôle.');
-  }
-},
-
-async deleteUser(userId: number) {
-  try {
-    await axios.delete(`/api/auth/users/${userId}`);
-  } catch (err: any) {
-    const res = err.response;
-    if (res?.status === 400) {
-      throw new Error(res.data.message || 'Vous ne pouvez pas supprimer votre propre compte.');
-    }
-    if (res?.status === 403) {
-      throw new Error(res.data.message || 'Action non autorisée.');
-    }
-    if (res?.status === 404) {
-      throw new Error('Utilisateur introuvable.');
-    }
-    throw new Error(res?.data?.message || 'Erreur lors de la suppression.');
-  }
-}
-}
-
+    /* ------ delete user ------ */
+    async deleteUser(userId: number) {
+      try {
+        await api.delete(`/api/auth/users/${userId}`)
+      } catch (err: any) {
+        const res = err.response
+        if (res?.status === 400) throw new Error(res.data.message || 'Vous ne pouvez pas supprimer votre propre compte')
+        if (res?.status === 403) throw new Error('Action non autorisée')
+        if (res?.status === 404) throw new Error('Utilisateur introuvable')
+        throw new Error(res?.data?.message || 'Erreur lors de la suppression')
+      }
+    },
+  },
 })

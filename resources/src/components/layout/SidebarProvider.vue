@@ -7,3 +7,6 @@ import { useSidebarProvider } from '@/composables/useSidebar'
 
 useSidebarProvider()
 </script>
+<script lang="ts">
+export default {}
+</script>

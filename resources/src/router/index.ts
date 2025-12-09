@@ -30,6 +30,7 @@ const protectedRoutes: RouteRecordRaw[] = [
   { path: '/blank', name: 'Blank', component: () => import('@/views/Pages/BlankPage.vue'), meta: { title: 'Blank' } },
   { path: '/users-list', name: 'UsersList', component: () => import('@/views/Pages/UsersList.vue'), meta: { title: 'UsersList' } },
   { path: '/change-password', name: 'ChangePassword', component: () => import('@/views/Auth/ChangePassword.vue'), meta: { title: 'ChangePassword' } },
+    { path: '/pending', name: 'Pending', component: () => import('@/views/Pages/PendingView.vue'), meta: { title: 'En attente' } },
 ]
 // Routes d'erreur
 const errorRoutes: RouteRecordRaw[] = [
@@ -47,31 +48,34 @@ const router = createRouter({
 })
 
 // 🔐 Guard global corrigé
+// router/index.ts
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  const publicRouteNames = ['Signin', 'Signup', 'ForgotPassword', 'ResetPassword', 'VerifyEmailNotice', 'VerifyEmail']
+  const publicRouteNames = ['Signin', 'Signup', 'ForgotPassword', 'ResetPassword', 'VerifyEmailNotice', 'VerifyEmail', 'Pending']
 
-  // Vérifie l'authentification si nécessaire
-  if (authStore.user === null) {
-    await authStore.fetchUser()
-  }
+  /* 1. On charge l’user une seule fois */
+  if (authStore.user === null) await authStore.fetchUser()
 
   const isAuthenticated = authStore.isAuthenticated
-  const isPublicRoute = publicRouteNames.includes(to.name as string)
+  const isPublic        = publicRouteNames.includes(to.name as string)
+  const role            = authStore.user?.role
 
-  // Si route protégée et non authentifié → login
-  if (!isPublicRoute && !isAuthenticated) {
-    next({ name: 'Signin' })
-    return
-  }
+  /* 2. Non authentifié → login */
+  if (!isPublic && !isAuthenticated) return next({ name: 'Signin' })
 
-  // Si route publique de login et déjà authentifié → dashboard
-  if (isPublicRoute && (to.name === 'Signin' || to.name === 'Signup') && isAuthenticated) {
-    next({ name: 'Ecommerce' })
-    return
-  }
+  /* 3. Déjà authentifié sur login/signup → dashboard */
+  if (isPublic && ['Signin', 'Signup'].includes(to.name as string) && isAuthenticated) return next({ name: 'Ecommerce' })
 
-  // Sinon, autoriser la navigation
+  /* 4. NOUVEAU (role = User) → on force /pending */
+  if (role === 'User' && to.name !== 'Pending') return next({ name: 'Pending' })
+
+  /* 5. Plus de rôle « User » mais encore sur /pending → on sort */
+  if (role !== 'User' && to.name === 'Pending') return next({ name: 'Ecommerce' })
+    console.log('🔍 user après fetch :', authStore.user)
+console.log('🔍 role détecté :', authStore.user?.role)
+console.log('🔍 destination :', to.name)
+
+  /* 6. Sinon : laisser passer */
   next()
 })
 export default router
