@@ -105,6 +105,30 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de suppression -->
+    <div v-if="deleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div class="bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Supprimer l’utilisateur</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">
+          Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.
+        </p>
+        <div class="flex justify-end gap-2">
+          <button
+            @click="closeDeleteModal"
+            class="px-4 py-2 text-gray-600 bg-gray-100 rounded hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            Annuler
+          </button>
+          <button
+            @click="deleteUser"
+            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -125,10 +149,14 @@ const loading = ref<boolean>(false)
 const errorMessage = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 
-// Modal
+// Modal édition
 const editModalOpen = ref(false)
 const editingUser = ref<UserRecord | null>(null)
 const editingRole = ref('User')
+
+// Modal suppression
+const deleteModalOpen = ref(false)
+const userToDelete = ref<number | null>(null)
 
 const authStore = useAuthStore()
 
@@ -141,7 +169,7 @@ async function loadUsers() {
   errorMessage.value = null
   try {
     const data = await authStore.fetchAllUsers()
-    users.value = Array.isArray(data) ? data : []
+    users.value = Array.isArray(data) ? data.map(u => ({ ...u })) : []
   } catch (err: any) {
     errorMessage.value = err?.message ?? 'Erreur lors du chargement des utilisateurs.'
   } finally {
@@ -165,8 +193,14 @@ async function saveRole() {
 
   try {
     await authStore.updateUserRole(editingUser.value.id, editingRole.value)
+
+    // ✅ Mise à jour locale immédiate
+    const userIndex = users.value.findIndex(u => u.id === editingUser.value!.id)
+    if (userIndex !== -1) {
+      users.value[userIndex] = { ...users.value[userIndex], role: editingRole.value }
+    }
+
     successMessage.value = 'Rôle mis à jour avec succès.'
-    await loadUsers() // Recharger la liste
     closeEditModal()
     setTimeout(() => (successMessage.value = null), 3000)
   } catch (err: any) {
@@ -175,19 +209,29 @@ async function saveRole() {
 }
 
 function confirmDelete(userId: number) {
-  if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-    deleteUser(userId)
-  }
+  userToDelete.value = userId
+  deleteModalOpen.value = true
 }
 
-async function deleteUser(userId: number) {
+async function deleteUser() {
+  if (userToDelete.value === null) return
+
   try {
-    await authStore.deleteUser(userId)
+    await authStore.deleteUser(userToDelete.value)
+
+    // ✅ Suppression locale immédiate
+    users.value = users.value.filter(u => u.id !== userToDelete.value)
+
     successMessage.value = 'Utilisateur supprimé.'
-    await loadUsers()
+    closeDeleteModal()
     setTimeout(() => (successMessage.value = null), 3000)
   } catch (err: any) {
     errorMessage.value = err?.message ?? 'Erreur lors de la suppression.'
   }
+}
+
+function closeDeleteModal() {
+  deleteModalOpen.value = false
+  userToDelete.value = null
 }
 </script>

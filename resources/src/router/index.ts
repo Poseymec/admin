@@ -14,7 +14,7 @@ const publicRoutes: RouteRecordRaw[] = [
 
 // Routes protégées
 const protectedRoutes: RouteRecordRaw[] = [
-  { path: '/', name: 'Ecommerce', component: () => import('@/views/Ecommerce.vue'), meta: { title: 'eCommerce Dashboard' } },
+  { path: '/', name: 'Accueil', component: () => import('@/views/Accueil.vue'), meta: { title: 'accueil Dashboard' } },
   { path: '/calendar', name: 'Calendar', component: () => import('@/views/Others/Calendar.vue'), meta: { title: 'Calendar' } },
   { path: '/profile', name: 'Profile', component: () => import('@/views/Others/UserProfile.vue'), meta: { title: 'Profile' } },
   { path: '/form-elements', name: 'Form Elements', component: () => import('@/views/Forms/FormElements.vue'), meta: { title: 'Form Elements' } },
@@ -64,13 +64,13 @@ router.beforeEach(async (to, from, next) => {
   if (!isPublic && !isAuthenticated) return next({ name: 'Signin' })
 
   /* 3. Déjà authentifié sur login/signup → dashboard */
-  if (isPublic && ['Signin', 'Signup'].includes(to.name as string) && isAuthenticated) return next({ name: 'Ecommerce' })
+  if (isPublic && ['Signin', 'Signup'].includes(to.name as string) && isAuthenticated) return next({ name: 'Accueil' })
 
   /* 4. NOUVEAU (role = User) → on force /pending */
   if (role === 'User' && to.name !== 'Pending') return next({ name: 'Pending' })
 
   /* 5. Plus de rôle « User » mais encore sur /pending → on sort */
-  if (role !== 'User' && to.name === 'Pending') return next({ name: 'Ecommerce' })
+  if (role !== 'User' && to.name === 'Pending') return next({ name: 'Accueil' })
     console.log('🔍 user après fetch :', authStore.user)
 console.log('🔍 role détecté :', authStore.user?.role)
 console.log('🔍 destination :', to.name)

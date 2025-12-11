@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class ApiUserController extends Controller
 {
+    /**
+     * Récupère les informations de l'utilisateur authentifié.
+     */
     public function user(Request $request)
     {
         $user = $request->user();
@@ -21,58 +24,62 @@ class ApiUserController extends Controller
             'id'    => $user->id,
             'name'  => $user->name,
             'email' => $user->email,
-            'role'  => $user->getRoleNames()->first() ?? 'Utilisateur', // rôle Spatie
+            'role'  => $user->getRoleNames()->first() ?? 'User',
         ]);
-        \Log::info('Route /api/auth/user appelée', ['user' => $request->user()?->getRoleNames()->first()]);
     }
 
+    /**
+     * Liste tous les utilisateurs (réservé au Super Admin).
+     */
     public function index(Request $request)
     {
-        $authUser = Auth::user();
-        $isSuper = false;
-        if ($authUser && is_callable([$authUser, 'hasRole'])) {
-            $isSuper = (bool) call_user_func([$authUser, 'hasRole'], 'Super Admin');
-        }
+        $user = Auth::user();
 
-        if (! $isSuper) {
+        // Vérifie que l'utilisateur est authentifié et est Super Admin
+        if (! $user || ! $user->hasRole('Super Admin')) {
             return response()->json(['message' => 'Accès refusé.'], 403);
         }
 
-        // on retire 'role' de la sélection SQL
         $users = User::select('id', 'name', 'email', 'created_at')
-            ->with('roles') // si tu veux afficher le rôle plus loin
+            ->with('roles') // Chargement des rôles pour getRoleNames()
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn($u) => [
-                'id'    => $u->id,
-                'name'  => $u->name,
-                'email' => $u->email,
-            'role'  => $request->user()->getRoleNames()->first() ?? 'User',
-            'created_at' => optional($u->created_at)->toDateTimeString(),
+                'id'         => $u->id,
+                'name'       => $u->name,
+                'email'      => $u->email,
+                'role'       => $u->getRoleNames()->first() ?? 'User', // ✅ CORRIGÉ
+                'created_at' => $u->created_at?->toDateTimeString(),
             ]);
 
         return response()->json(['users' => $users]);
     }
-    /**
-     * Supprimer un utilisateur.
-     */
-    // ApiUserController
-    // ApiUserController
-    public function destroy(int $user)
-    {
-        try {
-            if (!Auth::user()->hasRole('Super Admin')) {
-                return response()->json(['message' => 'Action non autorisée.'], 403);
-            }
-            if ($user === Auth::id()) {
-                return response()->json(['message' => 'Vous ne pouvez pas supprimer votre propre compte.'], 400);
-            }
 
-            User::findOrFail($user)->delete();
+    /**
+     * Supprime un utilisateur (réservé au Super Admin).
+     */
+    public function destroy(int $id)
+    {
+        $currentUser = Auth::user();
+
+        // Vérifications de sécurité
+        if (! $currentUser || ! $currentUser->hasRole('Super Admin')) {
+            return response()->json(['message' => 'Action non autorisée.'], 403);
+        }
+
+        if ($id === $currentUser->id) {
+            return response()->json(['message' => 'Vous ne pouvez pas supprimer votre propre compte.'], 400);
+        }
+
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
 
             return response()->json(['message' => 'Utilisateur supprimé avec succès.']);
-        } catch (\Throwable $e) {
-            return response()->json(['message' => 'Erreur lors de la suppression.', 'error' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la suppression.',
+            ], 500);
         }
     }
 }

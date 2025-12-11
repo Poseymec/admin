@@ -25,10 +25,10 @@ Route::prefix('auth')->group(function () {
 // Routes protégées (authentification par session/cookie)
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::post('/logout', [ApiLogoutController::class, 'logout']);
+    Route::get('/user', [ApiUserController::class, 'user']);
 
     /** route autoriser pour les admin et super admin */
     Route::middleware('role:Admin|Super Admin')->group(function (){
-        Route::get('/user', [ApiUserController::class, 'user']);
         Route::put('/password', [ApiChangePasswordController::class, '__invoke']);
     });
 

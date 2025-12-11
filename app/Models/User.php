@@ -15,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable , HasApiTokens,HasRoles;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, HasApiTokens, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -54,10 +54,15 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-public function sendEmailVerificationNotification()
-{
-    $this->notify(new CustomVerifyEmail);
-}
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail);
+    }
+    public function getRoleAttribute()
+    {
+        // Renvoie le premier rôle, ou une valeur par défaut
+        return $this->roles->first()?->name ?? 'User';
+    }
 
     protected static function booted()
     {
@@ -68,8 +73,8 @@ public function sendEmailVerificationNotification()
             if ($user->hasRole('Admin') && $user->role !== 'Admin') {
                 $user->updateQuietly(['role' => 'Admin']);
             }
-            if ($user->hasRole('Utilisateur') && $user->role !== 'Utilisateur') {
-                $user->updateQuietly(['role' => 'Utilisateur']);
+            if ($user->hasRole('User') && $user->role !== 'User') {
+                $user->updateQuietly(['role' => 'User']);
             }
         });
     }

@@ -30,7 +30,6 @@ class ApiLoginController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        // 🔴 Ajoutez cette vérification pour éviter tout crash
         if (! $user) {
             Auth::logout();
             return response()->json(['message' => 'Utilisateur introuvable.'], 403);
@@ -43,6 +42,15 @@ class ApiLoginController extends Controller
 
         $request->session()->regenerate();
 
-        return response()->json(['user' => $user]);
+        // ✅ Force l'inclusion de 'role' même si caché
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at,
+                'role' => $user->role, // 👈
+            ]
+        ]);
     }
 }

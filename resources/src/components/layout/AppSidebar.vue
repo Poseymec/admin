@@ -23,7 +23,7 @@
         <img
           v-if="isExpanded || isHovered || isMobileOpen"
           class="dark:hidden"
-          src="/images/logo/logo.png"
+          src="/images/logo/logo.svg"
           alt="Logo"
           width="150"
           height="40"
@@ -245,7 +245,7 @@ const menuGroups = [
       {
         icon: GridIcon,
         name: "Dashboard",
-        subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+        subItems: [{ name: "Accueil", path: "/", pro: false }],
       },
       {
         icon: CalenderIcon,
