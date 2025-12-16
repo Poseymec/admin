@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ApiEmailVerificationNotificationController;
 use App\Http\Controllers\Auth\ApiVerifyEmailController;
 use App\Http\Controllers\Auth\ApiChangePasswordController;
 use App\Http\Controllers\Auth\ApiUserRoleController;
+use App\Http\Controllers\Product\CategoryProductController;
 
 // Routes publiques
 Route::prefix('auth')->group(function () {
@@ -30,6 +31,9 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     /** route autoriser pour les admin et super admin */
     Route::middleware('role:Admin|Super Admin')->group(function (){
         Route::put('/password', [ApiChangePasswordController::class, '__invoke']);
+
+        // Catégories de produits
+        Route::apiResource('category-products', CategoryProductController::class);
     });
 
     /**route uniquement pour les super admin  */

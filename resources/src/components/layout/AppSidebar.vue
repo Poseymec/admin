@@ -206,7 +206,7 @@
           </div>
         </div>
       </nav>
-      <SidebarWidget v-if="isExpanded || isHovered || isMobileOpen" />
+     <!-- <SidebarWidget v-if="isExpanded || isHovered || isMobileOpen" />-->
     </div>
   </aside>
 </template>
@@ -214,7 +214,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
-
+//import SidebarWidget from '@/components/SidebarWidget.vue'
 import {
   GridIcon,
   CalenderIcon,
@@ -259,10 +259,12 @@ const menuGroups = [
       },
 
       {
-        name: "Forms",
+        name: "Products",
         icon: ListIcon,
         subItems: [
-          { name: "Form Elements", path: "/form-elements", pro: false },
+
+          {name:"Categories de produits", path: '/category-products/add', pro: false},
+            { name: "Liste des categories", path: "category-list", pro: false },
         ],
       },
       {

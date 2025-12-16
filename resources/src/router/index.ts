@@ -14,10 +14,10 @@ const publicRoutes: RouteRecordRaw[] = [
 
 // Routes protégées
 const protectedRoutes: RouteRecordRaw[] = [
+  { path: '/pending', name: 'Pending', component: () => import('@/views/Pages/PendingView.vue'), meta: { title: 'En attente' } },
   { path: '/', name: 'Accueil', component: () => import('@/views/Accueil.vue'), meta: { title: 'accueil Dashboard' } },
   { path: '/calendar', name: 'Calendar', component: () => import('@/views/Others/Calendar.vue'), meta: { title: 'Calendar' } },
   { path: '/profile', name: 'Profile', component: () => import('@/views/Others/UserProfile.vue'), meta: { title: 'Profile' } },
-  { path: '/form-elements', name: 'Form Elements', component: () => import('@/views/Forms/FormElements.vue'), meta: { title: 'Form Elements' } },
   { path: '/basic-tables', name: 'Basic Tables', component: () => import('@/views/Tables/BasicTables.vue'), meta: { title: 'Basic Tables' } },
   { path: '/line-chart', name: 'Line Chart', component: () => import('@/views/Chart/LineChart/LineChart.vue'), meta: { title: 'Line Chart' } },
   { path: '/bar-chart', name: 'Bar Chart', component: () => import('@/views/Chart/BarChart/BarChart.vue'), meta: { title: 'Bar Chart' } },
@@ -28,10 +28,16 @@ const protectedRoutes: RouteRecordRaw[] = [
   { path: '/images', name: 'Images', component: () => import('@/views/UiElements/Images.vue'), meta: { title: 'Images' } },
   { path: '/videos', name: 'Videos', component: () => import('@/views/UiElements/Videos.vue'), meta: { title: 'Videos' } },
   { path: '/blank', name: 'Blank', component: () => import('@/views/Pages/BlankPage.vue'), meta: { title: 'Blank' } },
+  //route auth et utilisateurs
   { path: '/users-list', name: 'UsersList', component: () => import('@/views/Pages/UsersList.vue'), meta: { title: 'UsersList' } },
   { path: '/change-password', name: 'ChangePassword', component: () => import('@/views/Auth/ChangePassword.vue'), meta: { title: 'ChangePassword' } },
-    { path: '/pending', name: 'Pending', component: () => import('@/views/Pages/PendingView.vue'), meta: { title: 'En attente' } },
+
+  // routes catégories de produits
+  {path: '/category-products/add', name: 'AddCategoryProduct', component: () => import('@/views/Product/Category/AddCategory.vue'), meta: { title: 'AddCategoryProduct' } },
+  //{path: '/category-products/add', name: 'AddCategoryProduct', component: () => import('@/views/Product/Category/AddCategory.vue'), meta: { title: 'AddCategoryProduct' } },
+  {path: '/category-list', name: 'CategoryProductList', component: () => import('@/views/Product/Category/CategoryList.vue'), meta: { title: 'CategoryProductList' } },
 ]
+
 // Routes d'erreur
 const errorRoutes: RouteRecordRaw[] = [
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/Errors/FourZeroFour.vue'), meta: { title: '404 Error' } },
@@ -71,9 +77,9 @@ router.beforeEach(async (to, from, next) => {
 
   /* 5. Plus de rôle « User » mais encore sur /pending → on sort */
   if (role !== 'User' && to.name === 'Pending') return next({ name: 'Accueil' })
-    console.log('🔍 user après fetch :', authStore.user)
-console.log('🔍 role détecté :', authStore.user?.role)
-console.log('🔍 destination :', to.name)
+   // console.log('🔍 user après fetch :', authStore.user)
+//console.log('🔍 role détecté :', authStore.user?.role)
+//console.log('🔍 destination :', to.name)
 
   /* 6. Sinon : laisser passer */
   next()
