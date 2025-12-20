@@ -11,21 +11,21 @@
               <svg class="stroke-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M12.7083 5L7.5 10.2083L12.7083 15.4167" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              Retour à la connexion
+              {{ t('auth.forgot_password.back_to_signin') }}
             </router-link>
           </div>
 
           <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
             <div class="mb-5 sm:mb-8">
               <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Mot de passe oublié ?
+                {{ t('auth.forgot_password.title') }}
               </h1>
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                Entrez votre e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+                {{ t('auth.forgot_password.subtitle') }}
               </p>
             </div>
 
-            <!-- Messages d’erreur ou de succès -->
+            <!-- Messages -->
             <div v-if="errorMessage" class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-lg dark:bg-red-900/20 dark:text-red-400">
               {{ errorMessage }}
             </div>
@@ -36,14 +36,14 @@
             <form @submit.prevent="handleSubmit" class="space-y-5">
               <div>
                 <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                  Adresse e-mail<span class="text-error-500">*</span>
+                  {{ t('auth.forgot_password.fields.email.label') }}<span class="text-error-500">*</span>
                 </label>
                 <input
                   v-model="email"
                   type="email"
                   id="email"
                   name="email"
-                  placeholder="Entrez votre e-mail"
+                  :placeholder="t('auth.forgot_password.fields.email.placeholder')"
                   class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                 />
               </div>
@@ -58,9 +58,11 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Envoi en cours...
+                  {{ t('auth.forgot_password.submit_button_loading') }}
                 </span>
-                <span v-else>Envoyer le lien de réinitialisation</span>
+                <span v-else>
+                  {{ t('auth.forgot_password.submit_button') }}
+                </span>
               </button>
             </form>
           </div>
@@ -74,7 +76,6 @@
               <router-link to="/" class="block mb-4">
                 <img width="231" height="48" src="/images/logo/auth-logo.svg" alt="Logo" />
               </router-link>
-           
             </div>
           </div>
         </div>
@@ -86,9 +87,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/stores/auth'
+
+const { t } = useI18n()
 
 const email = ref('')
 const errorMessage = ref('')
@@ -105,14 +109,13 @@ const handleSubmit = async () => {
 
   try {
     await authStore.forgotPassword(email.value)
-    // ✅ Succès : on affiche un message (même pour email inconnu, c'est une bonne pratique de sécurité)
-    successMessage.value = 'Si votre adresse e-mail existe, vous recevrez un lien de réinitialisation.'
+    successMessage.value = t('auth.forgot_password.success_message')
+    // Redirige après un court délai
     setTimeout(() => {
       router.push('/signin')
     }, 2000)
   } catch (err: any) {
-    // ❌ Erreur réseau ou validation (ex: email invalide)
-    errorMessage.value = err.message || "Une erreur inattendue s’est produite."
+    errorMessage.value = err.message || t('auth.forgot_password.error.unexpected')
   } finally {
     isLoading.value = false
   }

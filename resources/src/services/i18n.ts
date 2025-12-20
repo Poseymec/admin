@@ -2,8 +2,8 @@
 import { createI18n } from 'vue-i18n';
 
 // 1. Importe les traductions JSON
-import en from '@/locales/en.json';
-import fr from '@/locales/fr.json';
+import en from '../locales/en'
+import fr from '../locales/fr'
 
 // 2. Typage correct pour vue-i18n
 type MessageSchema = typeof en;

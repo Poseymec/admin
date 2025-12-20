@@ -1,23 +1,18 @@
 <template>
   <FullScreenLayout>
     <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-      <div
-        class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900"
-      >
+      <div class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900">
         <div class="flex flex-col flex-1 w-full lg:w-1/2">
-
-
           <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
             <div class="mb-5 sm:mb-8">
               <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                Créer un compte
+                {{ t('auth.register.title') }}
               </h1>
               <p class="text-sm text-gray-500 dark:text-gray-400">
-                Entrez votre nom, email et mot de passe pour vous inscrire !
+                {{ t('auth.register.subtitle') }}
               </p>
             </div>
 
-            <!-- Messages d'erreur ou de succès -->
             <div v-if="errorMessage" class="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-lg dark:bg-red-900/20 dark:text-red-400">
               {{ errorMessage }}
             </div>
@@ -31,9 +26,9 @@
                   class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10 w-full"
                 >
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Google icon (inchangé) -->
+                    <!-- Google icon -->
                   </svg>
-                  S’inscrire avec Google
+                  {{ t('auth.register.google_button') }}
                 </button>
               </div>
 
@@ -42,60 +37,56 @@
                   <div class="w-full border-t border-gray-200 dark:border-gray-800"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                  <span class="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">Ou</span>
+                  <span class="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
+                    {{ t('auth.register.or_separator') }}
+                  </span>
                 </div>
               </div>
 
               <form @submit.prevent="handleSubmit">
                 <div class="space-y-5">
-                  <!-- Full Name -->
                   <div>
                     <label for="name" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Nom complet<span class="text-error-500">*</span>
+                      {{ t('auth.register.fields.name.label') }}<span class="text-error-500">*</span>
                     </label>
                     <input
                       v-model="name"
                       type="text"
                       id="name"
                       name="name"
-                      placeholder="Entrez votre nom complet"
+                      :placeholder="t('auth.register.fields.name.placeholder')"
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
 
-                  <!-- Email -->
                   <div>
                     <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Adresse e-mail<span class="text-error-500">*</span>
+                      {{ t('auth.register.fields.email.label') }}<span class="text-error-500">*</span>
                     </label>
                     <input
                       v-model="email"
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="Entrez votre e-mail"
+                      :placeholder="t('auth.register.fields.email.placeholder')"
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
 
-                  <!-- Password -->
                   <div>
                     <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Mot de passe<span class="text-error-500">*</span>
+                      {{ t('auth.register.fields.password.label') }}<span class="text-error-500">*</span>
                     </label>
                     <div class="relative">
                       <input
                         v-model="password"
                         :type="showPassword ? 'text' : 'password'"
                         id="password"
-                        placeholder="Entrez votre mot de passe"
+                        :placeholder="t('auth.register.fields.password.placeholder')"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
-                      <span
-                        @click="togglePasswordVisibility"
-                        class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400"
-                      >
-                        <!-- Icônes d’œil (inchangées) -->
+                      <span @click="togglePasswordVisibility" class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400">
+                        <!-- Icônes d’œil -->
                         <svg v-if="!showPassword" class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C13.5184 15.3619 16.5055 13.0957 17.5849 9.94555C17.6389 9.78797 17.6389 9.6169 17.5849 9.45932C16.5055 6.30919 13.5184 4.04297 10.0002 4.04297ZM9.99151 7.84413C8.96527 7.84413 8.13333 8.67606 8.13333 9.70231C8.13333 10.7286 8.96527 11.5605 9.99151 11.5605H10.0064C11.0326 11.5605 11.8646 10.7286 11.8646 9.70231C11.8646 8.67606 11.0326 7.84413 10.0064 7.84413H9.99151Z" fill="#98A2B3" />
                         </svg>
@@ -105,47 +96,42 @@
                       </span>
                     </div>
                   </div>
-                  <!-- 👇 Indications compactes -->
-                  <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    Le mot de passe doit contenir au moins : <strong>10 caractères</strong>, une <strong>majuscule</strong>, une <strong>minuscule</strong>, un <strong>chiffre</strong>, un <strong>caractère spécial</strong>, et ne pas avoir été exposé.
-                  </p>
 
+                  <!-- ✅ Utilisation de <i18n-t> pour le formatage sécurisé -->
+                  <i18n-t
+                    keypath="auth.register.password_requirements"
+                    tag="p"
+                    class="mt-2 text-xs text-gray-500 dark:text-gray-400"
+                  >
+                    <template #minLength><strong>10 caractères</strong></template>
+                    <template #uppercase><strong>majuscule</strong></template>
+                    <template #lowercase><strong>minuscule</strong></template>
+                    <template #number><strong>chiffre</strong></template>
+                    <template #special><strong>caractère spécial</strong></template>
+                  </i18n-t>
 
-                  <!-- Confirm Password -->
                   <div>
                     <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Confirmer le mot de passe<span class="text-error-500">*</span>
+                      {{ t('auth.register.fields.password_confirmation.label') }}<span class="text-error-500">*</span>
                     </label>
                     <div class="relative">
                       <input
                         v-model="passwordConfirmation"
                         :type="showPassword ? 'text' : 'password'"
                         id="password_confirmation"
-                        placeholder="Confirmez votre mot de passe"
+                        :placeholder="t('auth.register.fields.password_confirmation.placeholder')"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
-                      <span
-                        @click="togglePasswordVisibility"
-                        class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400"
-                      >
+                      <span @click="togglePasswordVisibility" class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400">
                         <!-- Mêmes icônes -->
                       </span>
                     </div>
                   </div>
 
-                  <!-- Checkbox -->
                   <div>
-                    <label
-                      for="checkboxLabelOne"
-                      class="flex items-start text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-400"
-                    >
+                    <label for="checkboxLabelOne" class="flex items-start text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-400">
                       <div class="relative">
-                        <input
-                          v-model="agreeToTerms"
-                          type="checkbox"
-                          id="checkboxLabelOne"
-                          class="sr-only"
-                        />
+                        <input v-model="agreeToTerms" type="checkbox" id="checkboxLabelOne" class="sr-only" />
                         <div
                           :class="agreeToTerms ? 'border-brand-500 bg-brand-500' : 'bg-transparent border-gray-300 dark:border-gray-700'"
                           class="mr-3 flex h-5 w-5 items-center justify-center rounded-md border-[1.25px]"
@@ -158,15 +144,15 @@
                         </div>
                       </div>
                       <p class="inline-block font-normal text-gray-500 dark:text-gray-400">
-                        En créant un compte, vous acceptez les
-                        <span class="text-gray-800 dark:text-white/90">Conditions d’utilisation</span>
-                        et notre
-                        <span class="text-gray-800 dark:text-white">Politique de confidentialité</span>.
+                        {{ t('auth.register.terms.label_start') }}
+                        <span class="text-gray-800 dark:text-white/90">{{ t('auth.register.terms.terms_of_use') }}</span>
+                        {{ t('auth.register.terms.and') }}
+                        <span class="text-gray-800 dark:text-white">{{ t('auth.register.terms.privacy_policy') }}</span>
+                        {{ t('auth.register.terms.label_end') }}
                       </p>
                     </label>
                   </div>
 
-                  <!-- Submit Button -->
                   <div>
                     <button
                       type="submit"
@@ -178,9 +164,9 @@
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Création en cours...
+                        {{ t('auth.register.submit_button_loading') }}
                       </span>
-                      <span v-else>Créer un compte</span>
+                      <span v-else>{{ t('auth.register.submit_button') }}</span>
                     </button>
                   </div>
                 </div>
@@ -188,15 +174,17 @@
 
               <div class="mt-5 text-center">
                 <p class="text-sm font-normal text-gray-700 dark:text-gray-400">
-                  Vous avez déjà un compte ?
-                  <router-link to="/signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">Se connecter</router-link>
+                  {{ t('auth.register.already_have_account') }}
+                  <router-link to="/signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">
+                    {{ t('auth.register.sign_in_link') }}
+                  </router-link>
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Side Image (inchangé) -->
+        <!-- Side Image -->
         <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
           <div class="flex items-center justify-center z-1">
             <CommonGridShape />
@@ -204,7 +192,6 @@
               <router-link to="/" class="block mb-4">
                 <img width="231" height="48" src="/images/logo/auth-logo.svg" alt="Logo" />
               </router-link>
-              
             </div>
           </div>
         </div>
@@ -216,9 +203,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/stores/auth'
+
+const { t } = useI18n()
 
 const name = ref('')
 const email = ref('')
@@ -241,12 +231,12 @@ const handleSubmit = async () => {
   successMessage.value = ''
 
   if (!agreeToTerms.value) {
-    errorMessage.value = "Vous devez accepter les Conditions d’utilisation et la Politique de confidentialité."
+    errorMessage.value = t('auth.messages.register.error.terms_required')
     return
   }
 
   if (password.value !== passwordConfirmation.value) {
-    errorMessage.value = "Les mots de passe ne correspondent pas."
+    errorMessage.value = t('auth.messages.register.error.password_mismatch')
     return
   }
 
@@ -256,13 +246,10 @@ const handleSubmit = async () => {
       email: email.value,
       password: password.value,
     })
-    successMessage.value = "Inscription réussie ! Veuillez vérifier votre e-mail pour activer votre compte."
-    // Redirige après un court délai pour laisser le message s’afficher
-    setTimeout(() => {
-      router.push({ name: 'VerifyEmailNotice' })
-    }, 1500)
+    successMessage.value = t('auth.messages.register.success')
+    setTimeout(() => router.push({ name: 'VerifyEmailNotice' }), 1500)
   } catch (err: any) {
-    errorMessage.value = err.message || "Une erreur inattendue s’est produite."
+    errorMessage.value = err.message || t('auth.messages.register.error.unexpected')
   }
 }
 </script>

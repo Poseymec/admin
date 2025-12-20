@@ -7,7 +7,9 @@
             <!-- Vérification en cours -->
             <div v-if="status === 'verifying'" class="space-y-4">
               <div class="inline-block w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-              <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Vérification de votre e-mail...</h2>
+              <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
+                {{ t('auth.verify_email.verifying') }}
+              </h2>
             </div>
 
             <!-- Succès -->
@@ -17,15 +19,17 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
-              <h2 class="text-lg font-semibold text-gray-800 dark:text-white">E-mail vérifié !</h2>
+              <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
+                {{ t('auth.verify_email.success_title') }}
+              </h2>
               <p class="text-gray-600 dark:text-gray-400">
-                Votre adresse e-mail a été vérifiée avec succès.
+                {{ t('auth.verify_email.success_message') }}
               </p>
               <router-link
                 to="/signin"
                 class="inline-block px-4 py-2.5 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
               >
-                Accéder à la connexion
+                {{ t('auth.verify_email.success_button') }}
               </router-link>
             </div>
 
@@ -36,9 +40,11 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </div>
-              <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Échec de la vérification</h2>
+              <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
+                {{ t('auth.verify_email.error_title') }}
+              </h2>
               <p class="text-gray-600 dark:text-gray-400">
-                Le lien de vérification est invalide ou a expiré.
+                {{ t('auth.verify_email.error_message') }}
               </p>
 
               <!-- Formulaire pour renvoyer l'e-mail -->
@@ -46,7 +52,7 @@
                 <input
                   v-model="resendEmail"
                   type="email"
-                  placeholder="Votre adresse e-mail"
+                  :placeholder="t('auth.verify_email.resend_form.email_placeholder')"
                   class="w-full max-w-xs px-4 py-2.5 text-sm text-gray-700 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white/90"
                 />
                 <button
@@ -59,9 +65,11 @@
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Envoi en cours...
+                    {{ t('auth.verify_email.resend_form.button_loading') }}
                   </span>
-                  <span v-else>Renvoyer l’e-mail de vérification</span>
+                  <span v-else>
+                    {{ t('auth.verify_email.resend_form.button') }}
+                  </span>
                 </button>
                 <div v-if="resendError" class="mt-2 text-sm text-red-600 dark:text-red-400">
                   {{ resendError }}
@@ -82,7 +90,6 @@
               <router-link to="/" class="block mb-4">
                 <img width="231" height="48" src="/images/logo/auth-logo.svg" alt="Logo" />
               </router-link>
-              
             </div>
           </div>
         </div>
@@ -94,9 +101,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { useAuthStore } from '@/stores/auth'
+
+const { t } = useI18n()
 
 const status = ref<'verifying' | 'success' | 'error'>('verifying')
 const resendEmail = ref('')
@@ -132,11 +142,9 @@ const resend = async () => {
 
   try {
     await authStore.resendVerificationEmail(resendEmail.value)
-    resendSuccess.value = 'Un nouveau lien de vérification a été envoyé à votre adresse e-mail.'
-    // Optionnel : vider le champ après succès
-    // resendEmail.value = ''
+    resendSuccess.value = t('auth.verify_email.resend_success')
   } catch (err: any) {
-    resendError.value = err.message || 'Une erreur est survenue lors de l’envoi.'
+    resendError.value = err.message || t('auth.verify_email.resend_error')
   } finally {
     isResending.value = false
   }
