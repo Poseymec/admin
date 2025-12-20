@@ -1,0 +1,9 @@
+{
+  "auth": {
+    "login": "Se connecter",
+    "register": "S'inscrire"
+  },
+  "common": {
+    "welcome": "Bienvenue !"
+  }
+}

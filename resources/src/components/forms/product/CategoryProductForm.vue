@@ -41,20 +41,20 @@
       </div>
     </div>
 
-    <!-- Slug -->
-    <div class="md:col-span-2">
+    <!-- Slug (affiché mais non modifiable) -->
+    <div class="md:col-span-2" v-if="isEditing">
       <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-        Slug (clé d’URL, ex. : electronique)
+        Slug (généré automatiquement)
       </label>
       <input
-        v-model="form.slug"
+        :value="form.slug"
         type="text"
-        class="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600"
-        placeholder="electronique"
-        required
+        class="w-full border rounded px-3 py-2 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+        readonly
+        disabled
       />
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Uniquement lettres, chiffres, tirets ou underscores. Minuscules recommandées.
+        Le slug ne peut pas être modifié après création.
       </p>
     </div>
 
@@ -72,8 +72,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, onMounted, watch } from 'vue';
-import axios from 'axios';
+import { defineComponent, PropType, ref, onMounted } from 'vue';
+import { useProductCategoryStore } from '@/stores/CategoryProduct';
 
 interface CategoryFormData {
   name: {
@@ -93,6 +93,8 @@ export default defineComponent({
   },
   emits: ['saved'],
   setup(props, { emit }) {
+    const store = useProductCategoryStore();
+
     const form = ref<CategoryFormData>({
       name: { en: '', fr: '' },
       slug: '',
@@ -112,50 +114,30 @@ export default defineComponent({
       }
     });
 
-    // 🔑 Génération auto du slug (uniquement en création + si slug vide)
-    watch(
-      () => form.value.name.en,
-      (newVal) => {
-        if (newVal && !isEditing && !form.value.slug.trim()) {
-          form.value.slug = newVal
-            .toLowerCase()
-            .normalize('NFD')               // Décompose les caractères accentués
-            .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
-            .replace(/[^a-z0-9]+/g, '-')    // Remplace tout ce qui n’est pas alphanum par '-'
-            .replace(/^-+|-+$/g, '');       // Supprime les '-' en début/fin
-        }
-      }
-    );
-
     const submit = async () => {
       errorMessage.value = null;
       loading.value = true;
 
       try {
+        // 🔧 FIX : Utiliser les méthodes du store au lieu d'axios directement
         if (isEditing && props.initialData?.id) {
-          await axios.put(`/api/auth/category-products/${props.initialData.id}`, form.value);
+          // Édition : envoyer uniquement les noms
+          await store.updateCategory(props.initialData.id, {
+            name: form.value.name
+          });
         } else {
-          await axios.post('/api/auth/category-products', form.value);
+          // Création : envoyer uniquement les noms (slug généré côté serveur)
+          await store.createCategory({
+            name: form.value.name
+          });
         }
+
         emit('saved');
       } catch (error: any) {
         console.error('Erreur API :', error);
 
-        let msg = 'Une erreur inattendue est survenue. Veuillez réessayer.';
-
-        if (error.response?.data?.message) {
-          msg = error.response.data.message;
-        } else if (error.response?.status === 422) {
-          // Extraire la première erreur de validation
-          const errors = error.response.data.errors;
-          if (errors) {
-            const firstErrorField = Object.keys(errors)[0];
-            msg = errors[firstErrorField][0];
-          } else {
-            msg = 'Le formulaire contient des erreurs. Veuillez vérifier les champs.';
-          }
-        }
-
+        // L'erreur est déjà gérée par le store, on l'affiche ici aussi
+        let msg = store.error || 'Une erreur inattendue est survenue. Veuillez réessayer.';
         errorMessage.value = msg;
       } finally {
         loading.value = false;

@@ -10,29 +10,35 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import VueApexCharts from 'vue3-apexcharts'
+import i18n from '@/services/i18n' // ✅ bien chargé
 import api from '@/services/axios'
 import { useAuthStore } from '@/stores/auth'
 
+// 1. Créer l'instance Pinia une seule fois
 const pinia = createPinia()
 
-/* 1. CSRF */
+// 2. Créer l'application Vue une seule fois
+const app = createApp(App)
+
+// 3. Installer les plugins
+app.use(pinia)
+app.use(router)
+app.use(i18n)
+app.use(VueApexCharts)
+
+// 4. Initialisation : CSRF + chargement utilisateur
 api.get('/sanctum/csrf-cookie')
-  /* 2. User */
   .then(() => api.get('/api/auth/user'))
   .then((res) => {
-    pinia.use(() => {
-      const authStore = useAuthStore()
-      authStore.user = res.data
-      authStore.isAuthenticated = true
-    })
+    const authStore = useAuthStore()
+    authStore.user = res.data
+    authStore.isAuthenticated = true
   })
   .catch(() => {
-    pinia.use(() => {
-      const authStore = useAuthStore()
-      authStore.$reset()
-    })
+    const authStore = useAuthStore()
+    authStore.$reset()
   })
-  /* 3. Montage */
   .finally(() => {
-    createApp(App).use(pinia).use(router).use(VueApexCharts).mount('#app')
+    // 5. Monter l'application UNE SEULE FOIS
+    app.mount('#app')
   })

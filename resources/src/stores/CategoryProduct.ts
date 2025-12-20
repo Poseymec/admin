@@ -13,12 +13,13 @@ export interface ProductCategory {
   slug: string
 }
 
+// 🔧 FIX : Slug est optionnel car généré automatiquement côté serveur
 export interface ProductCategoryInput {
   name: {
     en: string
     fr: string
   }
-  slug: string
+  slug?: string
 }
 
 interface ApiErrorResponse {
@@ -27,12 +28,10 @@ interface ApiErrorResponse {
 }
 
 export const useProductCategoryStore = defineStore('productCategory', () => {
-  // États réactifs
   const categories = ref<ProductCategory[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // ─── Récupérer la liste des catégories ─────────────────────
   const fetchCategories = async () => {
     loading.value = true
     error.value = null
@@ -46,7 +45,6 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
     }
   }
 
-  // ─── Créer une nouvelle catégorie ───────────────────────────
   const createCategory = async (data: ProductCategoryInput) => {
     loading.value = true
     error.value = null
@@ -56,18 +54,21 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
       return response.data
     } catch (err) {
       handleError(err)
-      throw err // permet de propager l’erreur au composant
+      throw err
     } finally {
       loading.value = false
     }
   }
 
-  // ─── Mettre à jour une catégorie ────────────────────────────
   const updateCategory = async (id: number, data: ProductCategoryInput) => {
     loading.value = true
     error.value = null
     try {
-      const response = await axios.put<ProductCategory>(`/api/auth/category-products/${id}`, data)
+      const response = await axios.put<ProductCategory>(
+        `/api/auth/category-products/${id}`,
+        data
+      )
+
       const index = categories.value.findIndex(cat => cat.id === id)
       if (index !== -1) {
         categories.value[index] = response.data
@@ -81,7 +82,6 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
     }
   }
 
-  // ─── Supprimer une catégorie ────────────────────────────────
   const deleteCategory = async (id: number) => {
     loading.value = true
     error.value = null
@@ -96,7 +96,6 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
     }
   }
 
-  // ─── Gestion centralisée des erreurs ────────────────────────
   const handleError = (err: unknown) => {
     if (axios.isAxiosError(err)) {
       const axiosError = err as AxiosError<ApiErrorResponse>
@@ -115,18 +114,14 @@ export const useProductCategoryStore = defineStore('productCategory', () => {
     console.error('Category API error:', err)
   }
 
-  // ─── Réinitialiser l’erreur ─────────────────────────────────
   const clearError = () => {
     error.value = null
   }
 
   return {
-    // États
     categories,
     loading,
     error,
-
-    // Actions
     fetchCategories,
     createCategory,
     updateCategory,
