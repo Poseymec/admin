@@ -1,9 +1,9 @@
 
 <template>
   <AdminLayout>
-    <PageBreadcrumb :pageTitle="currentPageTitle" />
+    <PageBreadcrumb :pageTitle="t('user.management.title0')" />
     <div class="space-y-5 sm:space-y-6">
-      <ComponentCard title="Utilisateurs">
+      <ComponentCard :title="t('user.management.title1')">
         <UserTable />
       </ComponentCard>
     </div>
@@ -12,9 +12,11 @@
 
 <script setup>
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
 import UserTable from "@/components/tables/UserTable.vue";
-const currentPageTitle = ref("Liste des utilisateurs");
+const { t } = useI18n();
+//const currentPageTitle = ref( t('user.management.title0') );
 </script>

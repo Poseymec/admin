@@ -1,0 +1,51 @@
+{
+  "menu": {
+    "main": {
+      "title": "Menu",
+      "items": {
+        "dashboard": "Dashboard",
+        "calendar": "Calendar",
+        "profile": "User Profile",
+        "products": "Products",
+        "tables": "Tables",
+        "pages": "Pages"
+      },
+      "subitems": {
+        "home": "Home",
+        "product_categories": "Product Categories",
+        "category_list": "Category List",
+        "basic_tables": "Basic Tables",
+        "blank_page": "Blank Page",
+        "page_404": "404 Page",
+        "users": "Users"
+      }
+    },
+    "others": {
+      "title": "Others",
+      "items": {
+        "charts": "Charts",
+        "ui_elements": "UI Elements",
+        "authentication": "Authentication"
+      },
+      "subitems": {
+        "line_chart": "Line Chart",
+        "bar_chart": "Bar Chart",
+        "alerts": "Alerts",
+        "avatars": "Avatars",
+        "badge": "Badge",
+        "buttons": "Buttons",
+        "images": "Images",
+        "videos": "Videos",
+        "signin": "Sign in",
+        "signup": "Sign up",
+        "forgot_password": "Forgot Password",
+        "reset_password": "Reset Password",
+        "verify_email": "Verify Email"
+      }
+    }
+  },
+  "badges": {
+    "new": "new",
+    "pro": "pro"
+  }
+}

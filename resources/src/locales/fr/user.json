@@ -1,0 +1,95 @@
+{
+    "user_menu":{
+        "profile":"Profile",
+        "deconnect":"Déconnexion"
+    },
+
+ "profile": {
+    "loading": "Chargement...",
+    "logout_button": "Se déconnecter",
+    "tabs": {
+      "info": "Informations personnelles",
+      "password": "Changer le mot de passe"
+    },
+    "info": {
+      "name_label": "Nom",
+      "email_label": "Email",
+      "role_label": "Rôle"
+    },
+    "password_form": {
+      "current_password": {
+        "label": "Mot de passe actuel",
+        "placeholder": "Entrez votre mot de passe actuel"
+      },
+      "new_password": {
+        "label": "Nouveau mot de passe",
+        "placeholder": "Entrez un nouveau mot de passe"
+      },
+      "confirm_password": {
+        "label": "Confirmer le mot de passe",
+        "placeholder": "Confirmez le nouveau mot de passe"
+      },
+      "submit_button": "Changer le mot de passe",
+      "submit_button_loading": "Mise à jour en cours...",
+      "error": {
+        "password_mismatch": "Les mots de passe ne correspondent pas.",
+        "unexpected": "Une erreur est survenue lors de la mise à jour."
+      },
+      "success": "Mot de passe mis à jour avec succès."
+    },
+    "logout_modal": {
+      "title": "Se déconnecter ?",
+      "description": "Voulez-vous vraiment vous déconnecter ?",
+      "cancel": "Annuler",
+      "confirm": "Se déconnecter",
+      "confirm_loading": "Déconnexion..."
+    }
+  },
+  "management": {
+    "title0":"Liste des utilisateurs",
+    "title1":"Utilisateurs",
+    "title": "Utilisateurs inscrits",
+    "loading": "Chargement...",
+    "no_users": "Aucun utilisateur trouvé.",
+    "table": {
+      "headers": {
+        "name": "Utilisateur",
+        "email": "Email",
+        "role": "Rôle",
+        "created_at": "Inscrit le",
+        "actions": "Actions"
+      }
+    },
+    "role_options": {
+      "User": "User",
+      "Admin": "Admin",
+      "Super Admin": "Super Admin"
+    },
+    "edit_modal": {
+      "title": "Modifier le rôle",
+      "user_label": "Utilisateur",
+      "role_label": "Rôle",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "delete_modal": {
+      "title": "Supprimer l’utilisateur",
+      "description": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
+    },
+    "messages": {
+      "success": {
+        "role_updated": "Rôle mis à jour avec succès.",
+        "user_deleted": "Utilisateur supprimé."
+      },
+      "error": {
+        "load_users": "Erreur lors du chargement des utilisateurs.",
+        "update_role": "Erreur lors de la mise à jour.",
+        "delete_user": "Erreur lors de la suppression."
+      }
+    }
+  }
+  }
+
+

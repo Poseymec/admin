@@ -1,0 +1,51 @@
+{
+  "menu": {
+    "main": {
+      "title": "Menu",
+      "items": {
+        "dashboard": "Tableau de bord",
+        "calendar": "Calendrier",
+        "profile": "Profil utilisateur",
+        "products": "Produits",
+        "tables": "Tableaux",
+        "pages": "Pages"
+      },
+      "subitems": {
+        "home": "Accueil",
+        "product_categories": "Catégories de produits",
+        "category_list": "Liste des catégories",
+        "basic_tables": "Tableaux de base",
+        "blank_page": "Page vierge",
+        "page_404": "Page 404",
+        "users": "Utilisateurs"
+      }
+    },
+    "others": {
+      "title": "Autres",
+      "items": {
+        "charts": "Graphiques",
+        "ui_elements": "Éléments UI",
+        "authentication": "Authentification"
+      },
+      "subitems": {
+        "line_chart": "Graphique en ligne",
+        "bar_chart": "Graphique en barres",
+        "alerts": "Alertes",
+        "avatars": "Avatars",
+        "badge": "Badge",
+        "buttons": "Boutons",
+        "images": "Images",
+        "videos": "Vidéos",
+        "signin": "Connexion",
+        "signup": "Inscription",
+        "forgot_password": "Mot de passe oublié",
+        "reset_password": "Réinitialiser le mot de passe",
+        "verify_email": "Vérifier l’e-mail"
+      }
+    }
+  },
+  "badges": {
+    "new": "nouveau",
+    "pro": "pro"
+  }
+}

@@ -57,8 +57,8 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()

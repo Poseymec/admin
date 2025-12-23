@@ -50,7 +50,7 @@
         @click="showLogoutModal = true"
         class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/30"
       >
-        Se déconnecter
+        {{ t('user.profile.logout_button') }}
       </button>
     </div>
 
@@ -65,7 +65,7 @@
           }"
           class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
         >
-          Informations personnelles
+          {{ t('user.profile.tabs.info') }}
         </button>
         <button
           @click="activeTab = 'password'"
@@ -75,7 +75,7 @@
           }"
           class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
         >
-          Changer le mot de passe
+          {{ t('user.profile.tabs.password') }}
         </button>
       </nav>
     </div>
@@ -86,15 +86,21 @@
       <div v-if="activeTab === 'info'" class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Nom</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
+              {{ t('user.profile.info.name_label') }}
+            </label>
             <p class="mt-1 text-gray-900 dark:text-white">{{ user.name }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Email</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
+              {{ t('user.profile.info.email_label') }}
+            </label>
             <p class="mt-1 text-gray-900 dark:text-white">{{ user.email }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Rôle</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
+              {{ t('user.profile.info.role_label') }}
+            </label>
             <p class="mt-1 text-gray-900 dark:text-white">{{ user.role }}</p>
           </div>
         </div>
@@ -106,9 +112,9 @@
           <!-- Mot de passe actuel -->
           <PasswordField
             v-model="form.current_password"
-            label="Mot de passe actuel"
+            :label="t('user.profile.password_form.current_password.label')"
             id="current_password"
-            placeholder="Entrez votre mot de passe actuel"
+            :placeholder="t('user.profile.password_form.current_password.placeholder')"
             :show-toggle="true"
             v-model:show-password="showCurrentPassword"
           />
@@ -116,9 +122,9 @@
           <!-- Nouveau mot de passe -->
           <PasswordField
             v-model="form.password"
-            label="Nouveau mot de passe"
+            :label="t('user.profile.password_form.new_password.label')"
             id="password"
-            placeholder="Entrez un nouveau mot de passe"
+            :placeholder="t('user.profile.password_form.new_password.placeholder')"
             :show-toggle="true"
             v-model:show-password="showNewPassword"
           />
@@ -126,9 +132,9 @@
           <!-- Confirmation -->
           <PasswordField
             v-model="form.password_confirmation"
-            label="Confirmer le mot de passe"
+            :label="t('user.profile.password_form.confirm_password.label')"
             id="password_confirmation"
-            placeholder="Confirmez le nouveau mot de passe"
+            :placeholder="t('user.profile.password_form.confirm_password.placeholder')"
             :show-toggle="true"
             v-model:show-password="showConfirmPassword"
           />
@@ -152,9 +158,11 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              Mise à jour en cours...
+              {{ t('user.profile.password_form.submit_button_loading') }}
             </span>
-            <span v-else>Changer le mot de passe</span>
+            <span v-else>
+              {{ t('user.profile.password_form.submit_button') }}
+            </span>
           </button>
         </form>
       </div>
@@ -177,23 +185,29 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Se déconnecter ?</h3>
+          <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+            {{ t('user.profile.logout_modal.title') }}
+          </h3>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Voulez-vous vraiment vous déconnecter ?
+            {{ t('user.profile.logout_modal.description') }}
           </p>
           <div class="mt-6 flex justify-center gap-3">
             <button
               @click="showLogoutModal = false"
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
             >
-              Annuler
+              {{ t('user.profile.logout_modal.cancel') }}
             </button>
             <button
               @click="confirmLogout"
               :disabled="authStore.isLoading"
               class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 disabled:opacity-60"
             >
-              {{ authStore.isLoading ? 'Déconnexion...' : 'Se déconnecter' }}
+              {{
+                authStore.isLoading
+                  ? t('user.profile.logout_modal.confirm_loading')
+                  : t('user.profile.logout_modal.confirm')
+              }}
             </button>
           </div>
         </div>
@@ -204,10 +218,12 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import Modal from '@/components/ui/Modal.vue'
 import PasswordField from '@/components/ui/PasswordField.vue'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 
 const activeTab = ref('info')
@@ -226,50 +242,52 @@ const showConfirmPassword = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
-// Réinitialise les messages à l’onglet
 watch(activeTab, () => {
   errorMessage.value = ''
   successMessage.value = ''
 })
 
-// Données utilisateur
 const user = computed(() => authStore.user)
 const userInitial = computed(() => user.value?.name.charAt(0).toUpperCase() ?? '')
 
-// Changement de mot de passe
 const handleChangePassword = async () => {
   errorMessage.value = ''
   successMessage.value = ''
 
   if (form.password !== form.password_confirmation) {
-    errorMessage.value = 'Les mots de passe ne correspondent pas.'
+    errorMessage.value = t('user.profile.password_form.error.password_mismatch')
     return
   }
 
   try {
     await authStore.changePassword(form)
-    successMessage.value = 'Mot de passe mis à jour avec succès.'
-    form.current_password = ''
-    form.password = ''
-    form.password_confirmation = ''
+    successMessage.value = t('user.profile.password_form.success')
+    // Réinitialise le formulaire
+    Object.assign(form, {
+      current_password: '',
+      password: '',
+      password_confirmation: '',
+    })
     showCurrentPassword.value = false
     showNewPassword.value = false
     showConfirmPassword.value = false
     setTimeout(() => (successMessage.value = ''), 3000)
   } catch (err: any) {
-    errorMessage.value = err.message || 'Une erreur est survenue lors de la mise à jour.'
+    // Gère les erreurs i18n (cf. erreur store avec clés)
+    const message = err.message || 'user.profile.password_form.error.unexpected'
+    errorMessage.value = message.startsWith('auth.error.')
+      ? t(message)
+      : message
   }
 }
 
-// Déconnexion fiable
 const confirmLogout = async () => {
   try {
     await authStore.logout()
-    // Redirection uniquement après succès côté serveur
     window.location.href = '/signin'
   } catch (err) {
     console.error('Erreur déconnexion:', err)
-    errorMessage.value = 'Impossible de se déconnecter. Réessayez.'
+    errorMessage.value = t('user.profile.password_form.error.unexpected')
   }
 }
 </script>

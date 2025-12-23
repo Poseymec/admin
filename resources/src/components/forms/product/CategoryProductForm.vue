@@ -9,16 +9,18 @@
 
     <!-- Anglais -->
     <div class="border rounded-lg p-4 dark:border-gray-700 dark:bg-gray-800">
-      <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-3">🇬🇧 Anglais</h3>
+      <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-3">
+        {{ t('product.category_form.title_en') }}
+      </h3>
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-          Nom (EN)
+          {{ t('product.category_form.name_en_label') }}
         </label>
         <input
           v-model="form.name.en"
           type="text"
+          :placeholder="t('product.category_form.name_en_placeholder')"
           class="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600"
-          placeholder="Ex: Electronics"
           required
         />
       </div>
@@ -26,16 +28,18 @@
 
     <!-- Français -->
     <div class="border rounded-lg p-4 dark:border-gray-700 dark:bg-gray-800">
-      <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-3">🇫🇷 Français</h3>
+      <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-3">
+        {{ t('product.category_form.title_fr') }}
+      </h3>
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-          Nom (FR)
+          {{ t('product.category_form.name_fr_label') }}
         </label>
         <input
           v-model="form.name.fr"
           type="text"
+          :placeholder="t('product.category_form.name_fr_placeholder')"
           class="w-full border rounded px-3 py-2 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600"
-          placeholder="Ex : Électronique"
           required
         />
       </div>
@@ -44,7 +48,7 @@
     <!-- Slug (affiché mais non modifiable) -->
     <div class="md:col-span-2" v-if="isEditing">
       <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-        Slug (généré automatiquement)
+        {{ t('product.category_form.slug_label') }}
       </label>
       <input
         :value="form.slug"
@@ -54,7 +58,7 @@
         disabled
       />
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Le slug ne peut pas être modifié après création.
+        {{ t('product.category_form.slug_info') }}
       </p>
     </div>
 
@@ -65,22 +69,29 @@
         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-70 disabled:cursor-not-allowed transition"
         :disabled="loading"
       >
-        {{ loading ? 'Enregistrement...' : isEditing ? 'Mettre à jour' : 'Créer la catégorie' }}
+        {{
+          loading
+            ? t('product.category_form.submit_saving')
+            : isEditing
+              ? t('product.category_form.submit_update')
+              : t('product.category_form.submit_create')
+        }}
       </button>
     </div>
   </form>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, onMounted } from 'vue';
-import { useProductCategoryStore } from '@/stores/CategoryProduct';
+import { defineComponent, PropType, ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useProductCategoryStore } from '@/stores/CategoryProduct'
 
 interface CategoryFormData {
   name: {
-    en: string;
-    fr: string;
-  };
-  slug: string;
+    en: string
+    fr: string
+  }
+  slug: string
 }
 
 export default defineComponent({
@@ -93,64 +104,58 @@ export default defineComponent({
   },
   emits: ['saved'],
   setup(props, { emit }) {
-    const store = useProductCategoryStore();
+    const { t } = useI18n()
+    const store = useProductCategoryStore()
 
     const form = ref<CategoryFormData>({
       name: { en: '', fr: '' },
       slug: '',
-    });
+    })
 
-    const loading = ref(false);
-    const errorMessage = ref<string | null>(null);
-    const isEditing = !!props.initialData?.id;
+    const loading = ref(false)
+    const errorMessage = ref<string | null>(null)
+    const isEditing = !!props.initialData?.id
 
-    // Charger les données initiales si édition
     onMounted(() => {
       if (props.initialData) {
         form.value = {
           name: { ...props.initialData.name },
           slug: props.initialData.slug || '',
-        };
+        }
       }
-    });
+    })
 
     const submit = async () => {
-      errorMessage.value = null;
-      loading.value = true;
+      errorMessage.value = null
+      loading.value = true
 
       try {
-        // 🔧 FIX : Utiliser les méthodes du store au lieu d'axios directement
         if (isEditing && props.initialData?.id) {
-          // Édition : envoyer uniquement les noms
           await store.updateCategory(props.initialData.id, {
-            name: form.value.name
-          });
+            name: form.value.name,
+          })
         } else {
-          // Création : envoyer uniquement les noms (slug généré côté serveur)
           await store.createCategory({
-            name: form.value.name
-          });
+            name: form.value.name,
+          })
         }
-
-        emit('saved');
+        emit('saved')
       } catch (error: any) {
-        console.error('Erreur API :', error);
-
-        // L'erreur est déjà gérée par le store, on l'affiche ici aussi
-        let msg = store.error || 'Une erreur inattendue est survenue. Veuillez réessayer.';
-        errorMessage.value = msg;
+        console.error('Erreur API :', error)
+        errorMessage.value = store.error || t('product.category_form.error.unexpected')
       } finally {
-        loading.value = false;
+        loading.value = false
       }
-    };
+    }
 
     return {
+      t,
       form,
       loading,
       errorMessage,
       isEditing,
       submit,
-    };
+    }
   },
-});
+})
 </script>

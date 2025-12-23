@@ -1,0 +1,51 @@
+{
+     "category_form": {
+    "title_en": "🇬🇧 Anglais",
+    "title_fr": "🇫🇷 Français",
+    "name_en_label": "Nom (EN)",
+    "name_fr_label": "Nom (FR)",
+    "name_en_placeholder": "Ex: Electronics",
+    "name_fr_placeholder": "Ex : Électronique",
+    "slug_label": "Slug (généré automatiquement)",
+    "slug_info": "Le slug ne peut pas être modifié après création.",
+    "submit_create": "Créer la catégorie",
+    "submit_update": "Mettre à jour",
+    "submit_saving": "Enregistrement...",
+    "error": {
+      "unexpected": "Une erreur inattendue est survenue. Veuillez réessayer."
+    }
+  },
+  "category_list": {
+    "title0":"Categorie",
+    "title": "Catégories de produits",
+    "add_button": "+ Ajouter une catégorie",
+    "table": {
+      "headers": {
+        "name_en": "Nom (EN)",
+        "name_fr": "Nom (FR)",
+        "slug": "Slug",
+        "actions": "Actions"
+      },
+      "no_data": "Aucune catégorie disponible.",
+      "loading": "Chargement..."
+    },
+    "form": {
+      "title_add": "Ajouter une catégorie",
+      "title_edit": "Modifier la catégorie"
+    },
+    "delete_modal": {
+      "title": "Confirmer la suppression",
+      "description": "Êtes-vous sûr de vouloir supprimer la catégorie \"{name}\" ?",
+      "cancel": "Annuler",
+      "confirm": "Supprimer",
+      "confirm_loading": "Suppression..."
+    },
+    "messages": {
+      "success": {
+        "created": "Catégorie créée avec succès.",
+        "updated": "Catégorie mise à jour avec succès.",
+        "deleted": "Catégorie supprimée avec succès."
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+
+  "category_form": {
+    "title_en": "🇬🇧 English",
+    "title_fr": "🇫🇷 French",
+    "name_en_label": "Name (EN)",
+    "name_fr_label": "Name (FR)",
+    "name_en_placeholder": "E.g.: Electronics",
+    "name_fr_placeholder": "E.g.: Électronique",
+    "slug_label": "Slug (auto-generated)",
+    "slug_info": "The slug cannot be modified after creation.",
+    "submit_create": "Create category",
+    "submit_update": "Update",
+    "submit_saving": "Saving...",
+    "error": {
+      "unexpected": "An unexpected error occurred. Please try again."
+    }
+  },
+  "category_list": {
+    "title0":"Category",
+    "title": "Product Categories",
+    "add_button": "+ Add Category",
+    "table": {
+      "headers": {
+        "name_en": "Name (EN)",
+        "name_fr": "Name (FR)",
+        "slug": "Slug",
+        "actions": "Actions"
+      },
+      "no_data": "No categories available.",
+      "loading": "Loading..."
+    },
+    "form": {
+      "title_add": "Add Category",
+      "title_edit": "Edit Category"
+    },
+    "delete_modal": {
+      "title": "Confirm Deletion",
+      "description": "Are you sure you want to delete the category \"{name}\"?",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "confirm_loading": "Deleting..."
+    },
+    "messages": {
+      "success": {
+        "created": "Category created successfully.",
+        "updated": "Category updated successfully.",
+        "deleted": "Category deleted successfully."
+      }
+    }
+  }
+}
